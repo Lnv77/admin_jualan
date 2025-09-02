@@ -16,12 +16,12 @@
 </head>
 <body class="bg-gray-100">
 
-    <div class="flex h-screen bg-gray-200">
+    <div class="flex min-h-screen bg-gray-200">
         <!-- Sidebar akan dimuat di sini -->
         <div id="sidebar-container"></div>
 
         <!-- Konten Utama -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col">
             <!-- Header Konten -->
             <header class="flex justify-between items-center p-4 bg-white border-b">
                 <!-- Sisi Kiri Header -->
@@ -41,7 +41,7 @@
             </header>
 
             <!-- Area Konten -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
                 <div class="container mx-auto">
                     <!-- Grid untuk menampilkan saldo -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -112,19 +112,6 @@
                                 <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo Hutang (Piutang)</h3>
                             </div>
                             <p id="saldo-hutang" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
-                        </a>
-
-                        <!-- Card Pengeluaran -->
-                        <a href="pengeluaran.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
-                            <div class="flex items-center">
-                                <div class="bg-amber-500 p-3 rounded-full">
-                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Total Pengeluaran</h3>
-                            </div>
-                            <p id="total-pengeluaran" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
                         </a>
 
                     </div>
@@ -278,10 +265,9 @@
             function calculateAndDisplayBalances(transaksiPulsa = [], pelangganAkrab = [], dataTopup = [], dataPengeluaran = [], dataWifi = []) {
                 // Inisialisasi saldo
                 const balances = {
-                    cash: 0, agenPulsa: 0, dana: 0, gopay: 0, shopeepay: 0, hutang: 0,
+                    cash: 0, agenPulsa: 0, dana: 0, gopay: 0, shopeepay: 0, hutang: 0
                 };
-                let totalPengeluaran = 0;
-                
+
                 // Data sekarang diterima sebagai argumen, tidak lagi dari localStorage
 
                 // Proses transaksi pulsa
@@ -362,7 +348,6 @@
                 // Proses data pengeluaran (BARU)
                 dataPengeluaran.forEach(expense => {
                     const jumlah = expense.jumlah || 0;
-                    totalPengeluaran += jumlah;
                     switch (expense.sumber_dana) {
                         case 'Cash': balances.cash -= jumlah; break;
                         case 'Agen Pulsa': balances.agenPulsa -= jumlah; break;
@@ -401,7 +386,6 @@
                 document.getElementById('saldo-gopay').textContent = formatToRupiahDisplay(balances.gopay);
                 document.getElementById('saldo-shopeepay').textContent = formatToRupiahDisplay(balances.shopeepay);
                 document.getElementById('saldo-hutang').textContent = formatToRupiahDisplay(balances.hutang);
-                document.getElementById('total-pengeluaran').textContent = formatToRupiahDisplay(totalPengeluaran);
             }
 
             // 5. Muat data awal
@@ -413,13 +397,10 @@
                     'saldo-dana': document.getElementById('saldo-dana'),
                     'saldo-gopay': document.getElementById('saldo-gopay'),
                     'saldo-shopeepay': document.getElementById('saldo-shopeepay'),
-                    'saldo-hutang': document.getElementById('saldo-hutang'),
-                    'total-pengeluaran': document.getElementById('total-pengeluaran')
+                    'saldo-hutang': document.getElementById('saldo-hutang')
                 };
-                Object.values(balanceElements).forEach(el => {
-                    if (el) el.textContent = 'Memuat...';
-                });
-                
+                Object.values(balanceElements).forEach(el => el.textContent = 'Memuat...');
+
                 try {
                     // Selalu ambil data terbaru dari Google Sheets secara paralel
                     const [resultPulsa, resultAkrab, resultTopup, resultPengeluaran, resultWifi] = await Promise.all([
@@ -490,9 +471,8 @@
 
                 } catch (error) {
                     console.error('Gagal memuat data awal:', error);
-                    Object.values(balanceElements).forEach(el => {
-                        if (el) el.textContent = 'Error';
-                    });
+                    alert('Gagal memuat data dari server. Saldo yang ditampilkan mungkin tidak akurat. Coba muat ulang halaman.');
+                    Object.values(balanceElements).forEach(el => el.textContent = 'Error');
                 }
             }
 
