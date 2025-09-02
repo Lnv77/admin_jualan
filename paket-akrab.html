@@ -13,12 +13,12 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <div class="flex h-screen bg-gray-200">
+    <div class="flex min-h-screen bg-gray-200">
         <!-- Sidebar will be loaded here -->
         <div id="sidebar-container"></div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col">
             <header class="flex justify-between items-center p-4 bg-white border-b">
                 <div class="flex items-center">
                     <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
@@ -28,7 +28,7 @@
                 </div>
                 <div></div>
             </header>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <main class="flex-1 overflow-x-hidden bg-gray-100 p-6">
                 <div class="container mx-auto">
                     
                     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl mx-auto">
@@ -520,45 +520,6 @@
             setInitialDate('tanggal');
             updateMasaAktif('tanggal', 'masa_aktif');
             loadInitialData();
- 
-             // --- Fullscreen on scroll down, exit on scroll up (portrait mode) ---
-             const mainElement = document.querySelector('main');
-             let lastScrollTop = 0;
- 
-             const handleScrollFullscreen = () => {
-                 // Hanya berlaku pada mode portrait
-                 if (!window.matchMedia("(orientation: portrait)").matches) {
-                     return;
-                 }
- 
-                 let scrollTop = mainElement.scrollTop;
- 
-                 // Cek jika scroll ke bawah dan belum fullscreen
-                 if (scrollTop > lastScrollTop && !document.fullscreenElement) {
-                     const docEl = document.documentElement;
-                     if (docEl.requestFullscreen) {
-                         docEl.requestFullscreen().catch(err => console.warn(`Tidak bisa masuk mode fullscreen: ${err.message}`));
-                     } else if (docEl.webkitRequestFullscreen) { // Safari
-                         docEl.webkitRequestFullscreen();
-                     }
-                 }
-                 // Cek jika scroll ke atas dan sedang fullscreen
-                 else if (scrollTop < lastScrollTop && document.fullscreenElement) {
-                     if (document.exitFullscreen) {
-                         document.exitFullscreen();
-                     } else if (document.webkitExitFullscreen) { // Safari
-                         document.webkitExitFullscreen();
-                     }
-                 }
- 
-                 // Perbarui posisi scroll terakhir
-                 lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-             };
- 
-             if (mainElement) {
-                 mainElement.addEventListener('scroll', handleScrollFullscreen, false);
-             }
         });
     </script>
 </html>
-
