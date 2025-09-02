@@ -521,34 +521,46 @@
             updateMasaAktif('tanggal', 'masa_aktif');
             loadInitialData();
 
-            // --- Fullscreen on scroll in portrait mode ---
-            let fullscreenOnScrollTriggered = false;
+            // --- Fullscreen on scroll down, exit on scroll up (portrait mode) ---
             const mainElement = document.querySelector('main');
+            let lastScrollTop = 0;
 
-            const requestFullscreenOnScroll = () => {
-                if (window.matchMedia("(orientation: portrait)").matches && !fullscreenOnScrollTriggered) {
+            const handleScrollFullscreen = () => {
+                // Hanya berlaku pada mode portrait
+                if (!window.matchMedia("(orientation: portrait)").matches) {
+                    return;
+                }
+
+                let scrollTop = mainElement.scrollTop;
+
+                // Cek jika scroll ke bawah dan belum fullscreen
+                if (scrollTop > lastScrollTop && !document.fullscreenElement) {
                     const docEl = document.documentElement;
                     if (docEl.requestFullscreen) {
-                        docEl.requestFullscreen().catch(err => console.warn(`Could not enter fullscreen: ${err.message}`));
+                        docEl.requestFullscreen().catch(err => console.warn(`Tidak bisa masuk mode fullscreen: ${err.message}`));
                     } else if (docEl.webkitRequestFullscreen) { // Safari
                         docEl.webkitRequestFullscreen();
                     }
-                    fullscreenOnScrollTriggered = true;
                 }
+                // Cek jika scroll ke atas dan sedang fullscreen
+                else if (scrollTop < lastScrollTop && document.fullscreenElement) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) { // Safari
+                        document.webkitExitFullscreen();
+                    }
+                }
+
+                // Perbarui posisi scroll terakhir
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
             };
 
-            const addScrollListener = () => {
-                if (mainElement) {
-                    mainElement.addEventListener('scroll', requestFullscreenOnScroll, { once: true });
-                }
-            };
-
-            addScrollListener();
-
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    fullscreenOnScrollTriggered = false;
-                    addScrollListener(); // Re-attach the listener
+            if (mainElement) {
+                mainElement.addEventListener('scroll', handleScrollFullscreen, false);
+            }
+        });
+    </script>
+</body>
                 }
             });
         });
