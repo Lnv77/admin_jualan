@@ -16,12 +16,12 @@
 </head>
 <body class="bg-gray-100">
 
-    <div class="flex h-screen bg-gray-200">
+    <div class="flex min-h-screen bg-gray-200">
         <!-- Sidebar akan dimuat di sini -->
         <div id="sidebar-container"></div>
 
         <!-- Konten Utama -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col">
             <!-- Header Konten -->
             <header class="flex justify-between items-center p-4 bg-white border-b">
                 <div class="flex items-center">
@@ -34,7 +34,7 @@
             </header>
 
             <!-- Area Konten -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
                 <div class="container mx-auto">
                     <!-- Konten Form Produk Pulsa -->
                     <div id="content-produk-pulsa">
@@ -66,9 +66,10 @@
 
                 <!-- Tabel Produk Pulsa -->
                 <div class="container mx-auto mt-8">
-                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto">
+                    <div id="produk-list-container" class="bg-white p-4 md:p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto">
                         <h2 class="text-xl font-semibold mb-4">Daftar Produk Pulsa</h2>
-                        <div class="overflow-x-auto">
+                        <!-- Tampilan Tabel Desktop -->
+                        <div class="overflow-x-auto hidden md:block">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -83,6 +84,10 @@
                                     <!-- Data akan diisi oleh JavaScript -->
                                 </tbody>
                             </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="card-body-barang" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+                            <!-- Kartu data akan diisi oleh JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -126,6 +131,7 @@
             const hargaBarangInput = document.getElementById('harga_barang');
             const formBarang = document.getElementById('form-barang');
             const tableBodyBarang = document.getElementById('table-body-barang');
+            const cardBodyBarang = document.getElementById('card-body-barang');
 
             // Elemen Modal Edit
             const editModal = document.getElementById('edit-modal');
@@ -198,9 +204,12 @@
             // 6. Fungsi untuk merender data ke tabel
             function renderTabelBarang(data) {
                 tableBodyBarang.innerHTML = '';
+                cardBodyBarang.innerHTML = '';
 
                 if (data.length === 0) {
-                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">Belum ada produk pulsa.</td></tr>`;
+                    const message = 'Belum ada produk pulsa.';
+                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">${message}</td></tr>`;
+                    cardBodyBarang.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
                     return;
                 }
 
@@ -217,15 +226,40 @@
                         </td>
                     `;
                     tableBodyBarang.appendChild(row);
+
+                    // Render untuk Card Mobile
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-3';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-gray-800">${item.nama}</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 font-medium px-2 py-0.5 rounded">ID: ${item.id}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <p><strong>Modal:</strong> Rp ${item.modal.toLocaleString('id-ID')}</p>
+                            <p><strong>Harga Jual:</strong> Rp ${item.harga.toLocaleString('id-ID')}</p>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex justify-end items-center">
+                            <div class="flex space-x-2">
+                                <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-delete-btn" data-id="${item.id}">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    cardBodyBarang.appendChild(card);
                 });
             }
             
             // 7. Fungsi untuk menangani aksi di tabel (Edit & Hapus)
-            tableBodyBarang.addEventListener('click', async function(e) {
+            document.getElementById('produk-list-container').addEventListener('click', async function(e) {
                 const targetButton = e.target;
-                const id = targetButton.dataset.id;
+                
+                // Gunakan event delegation, pastikan yang diklik adalah tombol aksi
+                if (!targetButton.matches('.js-edit-btn, .js-delete-btn') || !targetButton.dataset.id) {
+                    return;
+                }
 
-                if (!id) return;
+                const id = targetButton.dataset.id;
 
                 // Aksi Edit
                 if (targetButton.classList.contains('js-edit-btn')) {
@@ -301,7 +335,10 @@
 
             // 9. Fungsi untuk memuat data dari Google Sheet saat halaman dibuka
             async function loadDataFromSheet() {
-                tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">Memuat data...</td></tr>`;
+                const loadingMessage = `Memuat data...`;
+                tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">${loadingMessage}</td></tr>`;
+                cardBodyBarang.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${loadingMessage}</div>`;
+
                 try {
                     const result = await sendDataToSheet('read', {});
                     const rawData = result.data || result;
@@ -319,7 +356,9 @@
                     }
                 } catch (error) {
                     console.error('Gagal memuat data dari Sheet:', error);
-                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat data. Coba muat ulang.</td></tr>`;
+                    const errorMessage = `Gagal memuat data. Coba muat ulang.`;
+                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">${errorMessage}</td></tr>`;
+                    cardBodyBarang.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">${errorMessage}</div>`;
                     allProduk = [];
                 }
             }
