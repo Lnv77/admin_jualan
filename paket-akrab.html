@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="md:col-span-2">
                                     <label for="link_akun" class="block text-sm font-medium text-gray-700">Link Akun</label>
-                                    <input type="url" id="link_akun" name="link_akun" placeholder="https://..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <input type="text" id="link_akun" name="link_akun" placeholder="Teks atau link..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                                 <div class="md:col-span-2">
                                     <label for="no_wallet" class="block text-sm font-medium text-gray-700">No. Wallet</label>
@@ -190,7 +190,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label for="edit-link_akun" class="block text-sm font-medium text-gray-700">Link Akun</label>
-                        <input type="url" id="edit-link_akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <input type="text" id="edit-link_akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div class="md:col-span-2">
                         <label for="edit-no_wallet" class="block text-sm font-medium text-gray-700">No. Wallet</label>
@@ -275,7 +275,7 @@
                 const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action, payload, sheetName: SHEET_NAME }) });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
-            }
+            };
 
             const updateMasaAktif = (tanggalId, masaAktifId) => {
                 const tanggalEl = document.getElementById(tanggalId);
@@ -361,7 +361,7 @@
 
                 const nomorValue = document.getElementById('no_hp').value;
                 const noWalletValue = document.getElementById('no_wallet').value;
-
+                const linkAkunValue = document.getElementById('link_akun').value;
                 const payload = {
                     id: `akrab-${Math.floor(1000 + Math.random() * 9000)}`,
                     tanggal_ditambahkan: document.getElementById('tanggal').value,
@@ -373,7 +373,7 @@
                     harga: parseRupiah(document.getElementById('harga').value),
                     'sumber modal': document.getElementById('sumber_modal').value,
                     metode_pembayaran: document.getElementById('pembayaran').value,
-                    link_akun: document.getElementById('link_akun').value,
+                    link_akun: linkAkunValue,
                     // Prepend single quote to force string type in Google Sheets
                     no_wallet: noWalletValue ? `'${noWalletValue}` : '',
                 };
@@ -459,7 +459,7 @@
 
                 const nomorValue = document.getElementById('edit-no_hp').value;
                 const noWalletValue = document.getElementById('edit-no_wallet').value;
-
+                const linkAkunValue = document.getElementById('edit-link_akun').value;
                 const payload = {
                     id: document.getElementById('edit-id').value,
                     tanggal_ditambahkan: document.getElementById('edit-tanggal').value,
@@ -471,7 +471,7 @@
                     harga: parseRupiah(document.getElementById('edit-harga').value),
                     'sumber modal': document.getElementById('edit-sumber_modal').value,
                     metode_pembayaran: document.getElementById('edit-pembayaran').value,
-                    link_akun: document.getElementById('edit-link_akun').value,
+                    link_akun: linkAkunValue,
                     // Prepend single quote to force string type in Google Sheets
                     no_wallet: noWalletValue ? `'${noWalletValue}` : '',
                 };
