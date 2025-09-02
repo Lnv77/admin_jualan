@@ -520,44 +520,44 @@
             setInitialDate('tanggal');
             updateMasaAktif('tanggal', 'masa_aktif');
             loadInitialData();
-
-            // --- Fullscreen on scroll down, exit on scroll up (portrait mode) ---
-            const mainElement = document.querySelector('main');
-            let lastScrollTop = 0;
-
-            const handleScrollFullscreen = () => {
-                // Hanya berlaku pada mode portrait
-                if (!window.matchMedia("(orientation: portrait)").matches) {
-                    return;
-                }
-
-                let scrollTop = mainElement.scrollTop;
-
-                // Cek jika scroll ke bawah dan belum fullscreen
-                if (scrollTop > lastScrollTop && !document.fullscreenElement) {
-                    const docEl = document.documentElement;
-                    if (docEl.requestFullscreen) {
-                        docEl.requestFullscreen().catch(err => console.warn(`Tidak bisa masuk mode fullscreen: ${err.message}`));
-                    } else if (docEl.webkitRequestFullscreen) { // Safari
-                        docEl.webkitRequestFullscreen();
-                    }
-                }
-                // Cek jika scroll ke atas dan sedang fullscreen
-                else if (scrollTop < lastScrollTop && document.fullscreenElement) {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) { // Safari
-                        document.webkitExitFullscreen();
-                    }
-                }
-
-                // Perbarui posisi scroll terakhir
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            };
-
-            if (mainElement) {
-                mainElement.addEventListener('scroll', handleScrollFullscreen, false);
-            }
+ 
+             // --- Fullscreen on scroll down, exit on scroll up (portrait mode) ---
+             const mainElement = document.querySelector('main');
+             let lastScrollTop = 0;
+ 
+             const handleScrollFullscreen = () => {
+                 // Hanya berlaku pada mode portrait
+                 if (!window.matchMedia("(orientation: portrait)").matches) {
+                     return;
+                 }
+ 
+                 let scrollTop = mainElement.scrollTop;
+ 
+                 // Cek jika scroll ke bawah dan belum fullscreen
+                 if (scrollTop > lastScrollTop && !document.fullscreenElement) {
+                     const docEl = document.documentElement;
+                     if (docEl.requestFullscreen) {
+                         docEl.requestFullscreen().catch(err => console.warn(`Tidak bisa masuk mode fullscreen: ${err.message}`));
+                     } else if (docEl.webkitRequestFullscreen) { // Safari
+                         docEl.webkitRequestFullscreen();
+                     }
+                 }
+                 // Cek jika scroll ke atas dan sedang fullscreen
+                 else if (scrollTop < lastScrollTop && document.fullscreenElement) {
+                     if (document.exitFullscreen) {
+                         document.exitFullscreen();
+                     } else if (document.webkitExitFullscreen) { // Safari
+                         document.webkitExitFullscreen();
+                     }
+                 }
+ 
+                 // Perbarui posisi scroll terakhir
+                 lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+             };
+ 
+             if (mainElement) {
+                 mainElement.addEventListener('scroll', handleScrollFullscreen, false);
+             }
         });
     </script>
 </body>
