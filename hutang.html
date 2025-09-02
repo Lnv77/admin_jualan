@@ -28,12 +28,12 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <div class="flex h-screen bg-gray-200">
+    <div class="flex min-h-screen bg-gray-200">
         <!-- Sidebar akan dimuat di sini -->
         <div id="sidebar-container"></div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col">
             <header class="flex justify-between items-center p-4 bg-white border-b">
                 <div class="flex items-center">
                     <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
@@ -43,7 +43,7 @@
                 </div>
                 <div></div>
             </header>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
                 <div class="container mx-auto">
                     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                         <h2 class="text-lg font-semibold text-gray-800 mb-2">Total Hutang Pelanggan (Piutang)</h2>
@@ -51,6 +51,19 @@
                     </div>
                     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto">
                         <h2 class="text-xl font-semibold mb-4">Riwayat Transaksi Hutang</h2>
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <div class="flex-grow">
+                                <label for="search-hutang" class="sr-only">Cari Transaksi</label>
+                                <input type="text" id="search-hutang" placeholder="Cari berdasarkan keterangan, jenis, atau pelanggan..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+                            <div class="w-full md:w-1/3">
+                                <label for="filter-pelanggan" class="sr-only">Filter berdasarkan pelanggan</label>
+                                <select id="filter-pelanggan" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <option value="">Semua Pelanggan</option>
+                                    <!-- Opsi akan diisi oleh JavaScript -->
+                                </select>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto hidden md:block">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -60,7 +73,6 @@
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Transaksi</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pemasukan (Rp)</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengeluaran (Rp)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
@@ -85,6 +97,9 @@
             const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
             const BALANCE_NAME = 'Hutang'; // Nama saldo yang akan dilacak
 
+            let allCombinedHistory = [];
+            let allPelanggan = new Set();
+
             async function sendDataToSheet(action, payload, sheetName) {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -101,11 +116,99 @@
                 return `Rp ${amount.toLocaleString('id-ID')}`;
             }
 
+            function renderHistory(historyToRender) {
+                const tableBody = document.getElementById('history-table-body');
+                const historyCardBody = document.getElementById('history-card-body');
+                const finalBalanceEl = document.getElementById('final-balance');
+
+                tableBody.innerHTML = '';
+                historyCardBody.innerHTML = '';
+                let currentBalance = 0;
+
+                if (historyToRender.length === 0) {
+                    const searchInput = document.getElementById('search-hutang').value;
+                    const pelangganFilter = document.getElementById('filter-pelanggan').value;
+                    const message = (searchInput || pelangganFilter) ? 'Tidak ada data yang cocok dengan filter.' : 'Belum ada riwayat transaksi hutang.';
+                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">${message}</td></tr>`;
+                    historyCardBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
+                } else {
+                    historyToRender.forEach(item => {
+                        currentBalance += item.pemasukan;
+                        currentBalance -= item.pengeluaran;
+
+                        const tanggalFormatted = item.tanggal.toLocaleString('id-ID', {
+                            day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        });
+
+                        // Untuk Tabel Desktop
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${tanggalFormatted}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-800">${item.pelanggan}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${item.jenis}</td>
+                            <td class="px-4 py-4 text-sm text-gray-500">${item.keterangan}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-green-600">${formatToRupiahDisplay(item.pemasukan)}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-red-600">${formatToRupiahDisplay(item.pengeluaran)}</td>
+                        `;
+                        tableBody.appendChild(row);
+
+                        // Untuk Tampilan Card Mobile
+                        const card = document.createElement('div');
+                        card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-2';
+                        card.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">${item.jenis}</span>
+                                <span class="text-xs text-gray-500">${tanggalFormatted}</span>
+                            </div>
+                            <p class="font-semibold text-gray-700">${item.pelanggan}</p>
+                            <p class="text-sm text-gray-600">${item.keterangan}</p>
+                            <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-lg font-semibold ${item.pemasukan > 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${item.pemasukan > 0 ? formatToRupiahDisplay(item.pemasukan) : formatToRupiahDisplay(item.pengeluaran)}
+                                </span>
+                            </div>
+                        `;
+                        historyCardBody.appendChild(card);
+                    });
+                }
+                finalBalanceEl.textContent = formatToRupiahDisplay(currentBalance);
+            }
+
+            function populatePelangganFilter() {
+                const filterSelect = document.getElementById('filter-pelanggan');
+                const currentValue = filterSelect.value;
+                filterSelect.innerHTML = '<option value="">Semua Pelanggan</option>';
+                
+                const sortedPelanggan = Array.from(allPelanggan).sort((a, b) => a.localeCompare(b));
+
+                sortedPelanggan.forEach(pelanggan => {
+                    if (pelanggan && pelanggan !== 'N/A') {
+                        const option = document.createElement('option');
+                        option.value = pelanggan;
+                        option.textContent = pelanggan;
+                        filterSelect.appendChild(option);
+                    }
+                });
+                filterSelect.value = currentValue;
+            }
+
+            function applyFiltersAndRender() {
+                const searchTerm = document.getElementById('search-hutang').value.toLowerCase();
+                const selectedPelanggan = document.getElementById('filter-pelanggan').value;
+
+                let filteredHistory = allCombinedHistory.filter(item => {
+                    const pelangganMatch = !selectedPelanggan || item.pelanggan === selectedPelanggan;
+                    const searchMatch = !searchTerm || item.keterangan.toLowerCase().includes(searchTerm) || item.jenis.toLowerCase().includes(searchTerm) || item.pelanggan.toLowerCase().includes(searchTerm);
+                    return pelangganMatch && searchMatch;
+                });
+                renderHistory(filteredHistory);
+            }
+
             async function loadAndDisplayHistory() {
                 const tableBody = document.getElementById('history-table-body');
                 const historyCardBody = document.getElementById('history-card-body');
                 const finalBalanceEl = document.getElementById('final-balance');
-                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">Memuat data riwayat...</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Memuat data riwayat...</td></tr>`;
                 historyCardBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">Memuat data riwayat...</div>`;
                 finalBalanceEl.textContent = 'Memuat...';
 
@@ -145,14 +248,14 @@
                         : [];
 
                     let combinedHistory = [];
-                    let finalBalance = 0; // Ini akan melacak total piutang (hutang pelanggan kepada kita)
 
                     // Transaksi Pulsa (jika pembayaran adalah Hutang, maka menambah piutang)
                     transaksiPulsa.forEach(tx => {
                         const harga = tx.harga;
                         if (tx.pembayaran === BALANCE_NAME) {
-                            finalBalance += harga;
-                            combinedHistory.push({ tanggal: new Date(tx.tanggal), pelanggan: tx.pelanggan || 'N/A', jenis: 'Pulsa', keterangan: `Penjualan ${tx.nama_pulsa} (${tx.nomor})`, pemasukan: harga, pengeluaran: 0 });
+                            const pelanggan = (tx.pelanggan || 'N/A').trim();
+                            combinedHistory.push({ tanggal: new Date(tx.tanggal), pelanggan: pelanggan, jenis: 'Pulsa', keterangan: `Penjualan ${tx.nama_pulsa} (${tx.nomor})`, pemasukan: harga, pengeluaran: 0 });
+                            allPelanggan.add(pelanggan);
                         }
                     });
 
@@ -160,69 +263,27 @@
                     pelangganAkrab.forEach(p => {
                         const harga = p.harga;
                         if (p.metodePembayaran === BALANCE_NAME) {
-                            finalBalance += harga;
-                            combinedHistory.push({ tanggal: new Date(p.tanggal), pelanggan: p.pelanggan || 'N/A', jenis: 'Paket Akrab', keterangan: `Penjualan Paket Akrab (${p.nomor})`, pemasukan: harga, pengeluaran: 0 });
+                            const pelanggan = (p.pelanggan || 'N/A').trim();
+                            combinedHistory.push({ tanggal: new Date(p.tanggal), pelanggan: pelanggan, jenis: 'Paket Akrab', keterangan: `Penjualan Paket Akrab (${p.nomor})`, pemasukan: harga, pengeluaran: 0 });
+                            allPelanggan.add(pelanggan);
                         }
                     });
 
-                    // Top Up (jika tujuan saldo adalah Hutang, berarti pelanggan membayar hutangnya, mengurangi piutang)
-                    dataTopup.forEach(topup => {
-                        const modal = topup.modal;
-                        if (topup.tujuan_saldo === BALANCE_NAME) {
-                            finalBalance -= modal;
-                            combinedHistory.push({ tanggal: new Date(topup.tanggal), pelanggan: topup.keterangan || 'N/A', jenis: 'Pembayaran Hutang', keterangan: `Pembayaran dari ${topup.sumber_modal}`, pemasukan: 0, pengeluaran: modal });
-                        }
-                    });
+                    // Baris-baris berikut dikomentari untuk menghilangkan data pembayaran hutang dari riwayat
+                    // dataTopup.forEach(topup => {
+                    //     const modal = topup.modal;
+                    //     if (topup.tujuan_saldo === BALANCE_NAME) {
+                    //         const pelanggan = (topup.keterangan || 'N/A').trim();
+                    //         combinedHistory.push({ tanggal: new Date(topup.tanggal), pelanggan: pelanggan, jenis: 'Pembayaran Hutang', keterangan: `Pembayaran dari ${topup.sumber_modal}`, pemasukan: 0, pengeluaran: modal });
+                    //         allPelanggan.add(pelanggan);
+                    //     }
+                    // });
 
                     // Urutkan riwayat berdasarkan tanggal terbaru
-                    combinedHistory.sort((a, b) => b.tanggal - a.tanggal);
+                    allCombinedHistory = combinedHistory.sort((a, b) => b.tanggal - a.tanggal);
 
-                    tableBody.innerHTML = '';
-                    historyCardBody.innerHTML = '';
-
-                    if (combinedHistory.length === 0) {
-                        const message = 'Belum ada riwayat transaksi hutang.';
-                        tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">${message}</td></tr>`;
-                        historyCardBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
-                    } else {
-                        combinedHistory.forEach(item => {
-                            const tanggalFormatted = item.tanggal.toLocaleString('id-ID', {
-                                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                            });
-
-                            // Untuk Tabel Desktop
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${tanggalFormatted}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-800">${item.pelanggan}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${item.jenis}</td>
-                                <td class="px-4 py-4 text-sm text-gray-500">${item.keterangan}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-green-600">${formatToRupiahDisplay(item.pemasukan)}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-red-600">${formatToRupiahDisplay(item.pengeluaran)}</td>
-                            `;
-                            tableBody.appendChild(row);
-
-                            // Untuk Tampilan Card Mobile
-                            const card = document.createElement('div');
-                            card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-2';
-                            card.innerHTML = `
-                                <div class="flex justify-between items-center">
-                                    <span class="font-bold text-gray-800">${item.jenis}</span>
-                                    <span class="text-xs text-gray-500">${tanggalFormatted}</span>
-                                </div>
-                                <p class="font-semibold text-gray-700">${item.pelanggan}</p>
-                                <p class="text-sm text-gray-600">${item.keterangan}</p>
-                                <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
-                                    <span class="text-lg font-semibold ${item.pemasukan > 0 ? 'text-green-600' : 'text-red-600'}">
-                                        ${item.pemasukan > 0 ? formatToRupiahDisplay(item.pemasukan) : formatToRupiahDisplay(item.pengeluaran)}
-                                    </span>
-                                </div>
-                            `;
-                            historyCardBody.appendChild(card);
-                        });
-                    }
-
-                    finalBalanceEl.textContent = formatToRupiahDisplay(finalBalance);
+                    populatePelangganFilter();
+                    applyFiltersAndRender();
 
                 } catch (error) {
                     console.error("Gagal memuat riwayat:", error);
@@ -231,6 +292,9 @@
                     finalBalanceEl.textContent = 'Error';
                 }
             }
+
+            document.getElementById('search-hutang').addEventListener('input', applyFiltersAndRender);
+            document.getElementById('filter-pelanggan').addEventListener('change', applyFiltersAndRender);
 
             loadAndDisplayHistory();
         });
