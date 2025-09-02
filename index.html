@@ -12,7 +12,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 overflow-hidden">
     <div class="flex h-screen bg-gray-200">
         <!-- Sidebar will be loaded here -->
         <div id="sidebar-container"></div>
@@ -259,7 +259,7 @@
                 const gsheetData = {
                     id: Math.floor(100000 + Math.random() * 900000),
                     tanggal: document.getElementById('tanggal').value,
-                    nomor: document.getElementById('no_hp').value,
+                    nomor: "'" + document.getElementById('no_hp').value, // Tambahkan ' untuk format teks di GSheet
                     nama_pulsa: document.getElementById('nama_pulsa').value,
                     modal: modal,
                     harga: harga,
@@ -407,8 +407,14 @@
                 if (target.classList.contains('js-edit-btn')) {
                     const modal = transaction.modal || transaction.Modal || 0;
                     const harga = transaction.harga || transaction.Harga || 0;
+
+                    // Format tanggal agar sesuai dengan input datetime-local (YYYY-MM-DDTHH:mm)
+                    const date = new Date(transaction.tanggal);
+                    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                    const formattedDate = date.toISOString().slice(0, 16);
+
                     document.getElementById('edit-id').value = transaction.id;
-                    document.getElementById('edit-tanggal').value = transaction.tanggal;
+                    document.getElementById('edit-tanggal').value = formattedDate;
                     document.getElementById('edit-no_hp').value = transaction.nomor;
                     document.getElementById('edit-nama_pulsa').value = transaction.nama_pulsa;
                     document.getElementById('edit-modal-input').value = modal.toLocaleString('id-ID');
@@ -461,7 +467,7 @@
                 const updatedTxData = {
                     id: document.getElementById('edit-id').value,
                     tanggal: document.getElementById('edit-tanggal').value,
-                    nomor: document.getElementById('edit-no_hp').value,
+                    nomor: "'" + document.getElementById('edit-no_hp').value, // Tambahkan ' untuk format teks di GSheet
                     nama_pulsa: document.getElementById('edit-nama_pulsa').value,
                     modal: parseRupiah(document.getElementById('edit-modal-input').value),
                     harga: parseRupiah(document.getElementById('edit-harga').value),
