@@ -73,7 +73,7 @@
                             <fieldset class="border border-gray-200 rounded-md p-4 mt-6">
                                 <legend class="font-semibold text-gray-700 px-2">Modal Pembelian Kuota</legend>
                                 <p class="text-sm text-gray-600 mb-4">Opsional: Tambahkan pembelian kuota awal yang akan dipotong dari pembayaran.</p>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="deskripsi-kuota" class="block text-sm font-medium text-gray-700">Deskripsi Kuota</label>
                                         <input type="text" id="deskripsi-kuota" placeholder="Cth: Kuota 50GB" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -93,10 +93,14 @@
                                         </select>
                                     </div>
                                     <div>
+                                        <label for="masa-aktif-kuota" class="block text-sm font-medium text-gray-700">Tgl Akhir Kuota</label>
+                                        <input type="date" id="masa-aktif-kuota" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
                                         <label for="akun-pengelola-kuota" class="block text-sm font-medium text-gray-700">Akun Pengelola</label>
                                         <input type="text" id="akun-pengelola-kuota" placeholder="Link atau nama akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     </div>
-                                    <div class="md:col-span-2">
+                                    <div>
                                         <label for="ewallet-pengelola-kuota" class="block text-sm font-medium text-gray-700">E-Wallet Pengelola</label>
                                         <input type="text" id="ewallet-pengelola-kuota" placeholder="Nomor DANA/GoPay" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     </div>
@@ -206,26 +210,18 @@
                 <!-- Riwayat Pembelian Kuota -->
                 <div>
                     <h4 class="text-lg font-semibold mb-2">Riwayat Pembelian Kuota</h4>
-                    <form id="form-tambah-pembelian" class="grid grid-cols-1 md:grid-cols-5 gap-2 items-end p-3 bg-gray-50 rounded-md mb-4">
-                        <div class="col-span-1">
-                            <label for="modal-deskripsi-kuota" class="block text-xs font-medium text-gray-600">Deskripsi</label>
-                            <input type="text" id="modal-deskripsi-kuota" placeholder="Kuota 50GB" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                    <form id="form-tambah-pembelian" class="p-3 bg-gray-50 rounded-md mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                            <div><label for="modal-deskripsi-kuota" class="block text-xs font-medium text-gray-600">Deskripsi</label><input type="text" id="modal-deskripsi-kuota" placeholder="Kuota 50GB" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"></div>
+                            <div><label for="modal-jumlah-pembelian" class="block text-xs font-medium text-gray-600">Jumlah (Rp)</label><input type="text" inputmode="numeric" id="modal-jumlah-pembelian" placeholder="50.000" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"></div>
+                            <div><label for="modal-sumber-modal-kuota" class="block text-xs font-medium text-gray-600">Sumber Modal</label><select id="modal-sumber-modal-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"><option>Agen Pulsa</option><option>DANA</option><option>GoPay</option><option>ShopeePay</option><option>Cash</option></select></div>
+                            <div><label for="modal-masa-aktif-kuota" class="block text-xs font-medium text-gray-600">Tgl Akhir Kuota</label><input type="date" id="modal-masa-aktif-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"></div>
+                            <div><label for="modal-akun-pengelola-kuota" class="block text-xs font-medium text-gray-600">Akun Pengelola</label><input type="text" id="modal-akun-pengelola-kuota" placeholder="Link/nama akun" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"></div>
+                            <div><label for="modal-ewallet-pengelola-kuota" class="block text-xs font-medium text-gray-600">E-Wallet Pengelola</label><input type="text" id="modal-ewallet-pengelola-kuota" placeholder="Nomor e-wallet" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm"></div>
                         </div>
-                        <div class="col-span-1">
-                            <label for="modal-jumlah-pembelian" class="block text-xs font-medium text-gray-600">Jumlah (Rp)</label>
-                            <input type="text" inputmode="numeric" id="modal-jumlah-pembelian" placeholder="50.000" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                        <div class="flex justify-end mt-2">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 text-sm rounded-md h-9">Tambah</button>
                         </div>
-                        <div class="md:col-span-1">
-                            <label for="modal-sumber-modal-kuota" class="block text-xs font-medium text-gray-600">Sumber Modal</label>
-                            <select id="modal-sumber-modal-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
-                                <option>Agen Pulsa</option><option>DANA</option><option>GoPay</option><option>ShopeePay</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-1">
-                            <label for="modal-masa-aktif-kuota" class="block text-xs font-medium text-gray-600">Tgl Akhir Kuota</label>
-                            <input type="date" id="modal-masa-aktif-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
-                        </div>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 text-sm rounded-md h-9">Tambah</button>
                     </form>
                     <ul id="modal-list-pembelian" class="space-y-2 max-h-48 overflow-y-auto pr-2"></ul>
                 </div>
@@ -570,9 +566,12 @@
                 const listPembelian = document.getElementById('modal-list-pembelian');
                 listPembelian.innerHTML = pelanggan.pembelian.map(p => `
                     <li class="text-sm bg-gray-100 p-2 rounded-md flex justify-between items-center">
-                        <div>
-                            <span>${p.deskripsi} - <strong>Rp ${formatRupiah(p.amount)}</strong></span>
-                            <span class="block text-xs text-gray-500">${new Date(p.tanggal).toLocaleDateString('id-ID')} | Tgl Akhir: ${formatDisplayDate(p.masa_aktif)} | Sumber: ${p.sumber_modal || 'N/A'}</span>
+                         <div>
+                            <p class="font-medium">${p.deskripsi} - <strong>Rp ${formatRupiah(p.amount)}</strong></p>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span>${new Date(p.tanggal).toLocaleDateString('id-ID')} | Sumber: ${p.sumber_modal || 'N/A'} | Tgl Akhir: ${formatDisplayDate(p.masa_aktif)}</span><br>
+                                <span>Pengelola: ${p.akun_pengelola || 'N/A'} (${p.ewallet_pengelola || 'N/A'})</span>
+                            </div>
                         </div>
                     </li>`).join('');
             }
@@ -635,13 +634,15 @@
                 const deskripsi = deskripsiInput.value.trim();
                 const sumberModal = document.getElementById('modal-sumber-modal-kuota').value;
                 const masaAktif = document.getElementById('modal-masa-aktif-kuota').value.trim();
+                const akunPengelola = document.getElementById('modal-akun-pengelola-kuota').value.trim();
+                const ewalletPengelola = document.getElementById('modal-ewallet-pengelola-kuota').value.trim();
 
                 if (amount > 0 && deskripsi && currentPelangganId) {                    
                     const pelangganIndex = semuaPelanggan.findIndex(p => p.id === currentPelangganId);
                     if (pelangganIndex > -1) {
                         const pelangganToUpdate = semuaPelanggan[pelangganIndex];
                         pelangganToUpdate.pembelian.push({
-                            id: Date.now(), amount: amount, tanggal: getTodayDate(), deskripsi: deskripsi, sumber_modal: sumberModal, masa_aktif: masaAktif
+                            id: Date.now(), amount: amount, tanggal: getTodayDate(), deskripsi: deskripsi, sumber_modal: sumberModal, masa_aktif: masaAktif, akun_pengelola: akunPengelola, ewallet_pengelola: ewalletPengelola
                         });
 
                         const payload = {
@@ -666,6 +667,8 @@
                                 jumlahInput.value = '';
                                 document.getElementById('modal-sumber-modal-kuota').value = 'Agen Pulsa';
                                 document.getElementById('modal-masa-aktif-kuota').value = '';
+                                document.getElementById('modal-akun-pengelola-kuota').value = '';
+                                document.getElementById('modal-ewallet-pengelola-kuota').value = '';
                             } else { throw new Error(result.message); }
                         } catch (error) {
                             alert('Gagal menambah pembelian kuota: ' + error.message);
