@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen WiFi</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 id="header-title" class="text-xl font-semibold ml-3">Manajemen WiFi</h1>
+                </div>
+                <div></div>
+            </header>
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto">
+                        <h1 id="form-title" class="text-2xl font-bold text-center mb-6 text-gray-800">Formulir Pendaftaran Pelanggan WiFi Baru</h1>
+                        <form id="form-pelanggan">
+                            <!-- Data Pelanggan -->
+                            <fieldset class="border border-gray-200 rounded-md p-4">
+                                <legend class="font-semibold text-gray-700 px-2">Data Pelanggan</legend>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                    <div>
+                                        <label for="nama-pelanggan" class="block text-sm font-medium text-gray-700">Nama Pelanggan</label>
+                                        <input type="text" id="nama-pelanggan" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="nomor-hp" class="block text-sm font-medium text-gray-700">Nomor HP</label>
+                                        <input type="tel" id="nomor-hp" placeholder="08123456789" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="tanggal-aktivasi" class="block text-sm font-medium text-gray-700">Tanggal Aktivasi</label>
+                                        <input type="date" id="tanggal-aktivasi" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="masa-aktif-pelanggan" class="block text-sm font-medium text-gray-700">Tanggal Akhir Aktif</label>
+                                        <input type="date" id="masa-aktif-pelanggan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="pembayaran-awal" class="block text-sm font-medium text-gray-700">Pembayaran Awal (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="pembayaran-awal" placeholder="150.000" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="metode-pembayaran-awal" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                                        <select id="metode-pembayaran-awal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option>Cash</option>
+                                            <option>DANA</option>
+                                            <option>Transfer Bank</option>
+                                            <option>Hutang</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <!-- Pembelian Kuota -->
+                            <fieldset class="border border-gray-200 rounded-md p-4 mt-6">
+                                <legend class="font-semibold text-gray-700 px-2">Modal Pembelian Kuota</legend>
+                                <p class="text-sm text-gray-600 mb-4">Opsional: Tambahkan pembelian kuota awal yang akan dipotong dari pembayaran.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="deskripsi-kuota" class="block text-sm font-medium text-gray-700">Deskripsi Kuota</label>
+                                        <input type="text" id="deskripsi-kuota" placeholder="Cth: Kuota 50GB" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="jumlah-pembelian" class="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="jumlah-pembelian" placeholder="50.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="sumber-modal-kuota" class="block text-sm font-medium text-gray-700">Sumber Modal</label>
+                                        <select id="sumber-modal-kuota" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option>Agen Pulsa</option>
+                                            <option>DANA</option>
+                                            <option>GoPay</option>
+                                            <option>ShopeePay</option>
+                                            <option>Cash</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="akun-pengelola-kuota" class="block text-sm font-medium text-gray-700">Akun Pengelola</label>
+                                        <input type="text" id="akun-pengelola-kuota" placeholder="Link atau nama akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label for="ewallet-pengelola-kuota" class="block text-sm font-medium text-gray-700">E-Wallet Pengelola</label>
+                                        <input type="text" id="ewallet-pengelola-kuota" placeholder="Nomor DANA/GoPay" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end mt-4">
+                                    <button type="button" id="btn-tambah-kuota" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap">
+                                        Tambah
+                                    </button>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-800 mt-6 mb-2">Daftar Pembelian Kuota</h3>
+                                <ul id="daftar-pembelian" class="space-y-2">
+                                    <!-- Daftar pembelian akan muncul di sini -->
+                                </ul>
+                            </fieldset>
+
+                            <!-- Tombol Aksi Form -->
+                            <div class="mt-8 flex justify-end gap-4">
+                                <button type="button" id="btn-reset" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Reset Form</button>
+                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Daftarkan Pelanggan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Pelanggan -->
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto mt-8">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">Daftar Pelanggan WiFi</h2>
+                        <div class="mb-4">
+                            <label for="search-pelanggan" class="sr-only">Cari Pelanggan</label>
+                            <input type="text" id="search-pelanggan" placeholder="Cari berdasarkan nama..." class="block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <!-- Tampilan Tabel Desktop -->
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pelanggan</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Jatuh Tempo</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sisa Saldo</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabel-pelanggan" class="bg-white divide-y divide-gray-200">
+                                    <!-- Data pelanggan akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="kartu-pelanggan" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+                            <!-- Kartu pelanggan akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Detail Pelanggan -->
+    <div id="detail-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-nama-pelanggan">Nama Pelanggan</h3>
+                <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div class="mt-4 text-sm text-gray-600 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
+                <p><strong>Nomor HP:</strong> <span id="modal-nomor-hp"></span></p>
+                <p><strong>Tanggal Akhir Aktif:</strong> <span id="modal-masa-aktif"></span></p>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="p-4 bg-blue-100 rounded-lg">
+                    <p class="text-sm text-blue-800">Total Pembayaran</p>
+                    <p class="text-2xl font-bold text-blue-900" id="modal-total-pembayaran">Rp 0</p>
+                </div>
+                <div class="p-4 bg-red-100 rounded-lg">
+                    <p class="text-sm text-red-800">Total Pembelian Kuota</p>
+                    <p class="text-2xl font-bold text-red-900" id="modal-total-pembelian">Rp 0</p>
+                </div>
+                <div class="p-4 bg-green-100 rounded-lg">
+                    <p class="text-sm text-green-800">Sisa Saldo</p>
+                    <p class="text-2xl font-bold text-green-900" id="modal-sisa-saldo">Rp 0</p>
+                </div>
+            </div>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Riwayat Pembayaran -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-2">Riwayat Pembayaran</h4>
+                    <form id="form-tambah-pembayaran" class="grid grid-cols-1 md:grid-cols-3 gap-2 items-end p-3 bg-gray-50 rounded-md mb-4">
+                        <div class="md:col-span-1">
+                            <label for="modal-jumlah-pembayaran" class="block text-xs font-medium text-gray-600">Jumlah (Rp)</label>
+                            <input type="text" inputmode="numeric" id="modal-jumlah-pembayaran" placeholder="150.000" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="modal-metode-pembayaran" class="block text-xs font-medium text-gray-600">Metode</label>
+                            <select id="modal-metode-pembayaran" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                                <option>Cash</option>
+                                <option>DANA</option>
+                                <option>Transfer Bank</option>
+                                <option>Hutang</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 text-sm rounded-md h-9">Tambah</button>
+                    </form>
+                    <ul id="modal-list-pembayaran" class="space-y-2 max-h-48 overflow-y-auto pr-2"></ul>
+                </div>
+                <!-- Riwayat Pembelian Kuota -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-2">Riwayat Pembelian Kuota</h4>
+                    <form id="form-tambah-pembelian" class="grid grid-cols-1 md:grid-cols-5 gap-2 items-end p-3 bg-gray-50 rounded-md mb-4">
+                        <div class="col-span-1">
+                            <label for="modal-deskripsi-kuota" class="block text-xs font-medium text-gray-600">Deskripsi</label>
+                            <input type="text" id="modal-deskripsi-kuota" placeholder="Kuota 50GB" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div class="col-span-1">
+                            <label for="modal-jumlah-pembelian" class="block text-xs font-medium text-gray-600">Jumlah (Rp)</label>
+                            <input type="text" inputmode="numeric" id="modal-jumlah-pembelian" placeholder="50.000" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="modal-sumber-modal-kuota" class="block text-xs font-medium text-gray-600">Sumber Modal</label>
+                            <select id="modal-sumber-modal-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                                <option>Agen Pulsa</option><option>DANA</option><option>GoPay</option><option>ShopeePay</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="modal-masa-aktif-kuota" class="block text-xs font-medium text-gray-600">Tgl Akhir Kuota</label>
+                            <input type="date" id="modal-masa-aktif-kuota" class="mt-1 block w-full text-sm rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 text-sm rounded-md h-9">Tambah</button>
+                    </form>
+                    <ul id="modal-list-pembelian" class="space-y-2 max-h-48 overflow-y-auto pr-2"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- WiFi Form Logic ---
+            const formPelanggan = document.getElementById('form-pelanggan');
+            const namaPelangganEl = document.getElementById('nama-pelanggan');
+            const nomorHpEl = document.getElementById('nomor-hp');
+            const masaAktifPelangganEl = document.getElementById('masa-aktif-pelanggan');
+            const tanggalAktivasiEl = document.getElementById('tanggal-aktivasi');
+            const pembayaranAwalEl = document.getElementById('pembayaran-awal');
+            const deskripsiKuotaEl = document.getElementById('deskripsi-kuota');
+            const jumlahPembelianEl = document.getElementById('jumlah-pembelian');
+            const btnTambahKuota = document.getElementById('btn-tambah-kuota');
+            const btnReset = document.getElementById('btn-reset');
+            const daftarPembelianEl = document.getElementById('daftar-pembelian');
+            const tabelPelanggan = document.getElementById('tabel-pelanggan');
+            const kartuPelanggan = document.getElementById('kartu-pelanggan');
+            const searchPelangganEl = document.getElementById('search-pelanggan');
+
+            // --- Modal Elements ---
+            const detailModal = document.getElementById('detail-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            let currentPelangganId = null;
+
+            let semuaPelanggan = [];
+            let daftarPembelianAwal = []; // For the initial form
+
+            // GANTI DENGAN URL APLIKASI WEB ANDA
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+
+            async function sendDataToSheet(action, payload = {}) {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify({ action, payload, sheetName: 'wifi_pelanggan' })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            }
+
+            // --- Helper Functions ---
+            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID').format(angka);
+            const parseRupiah = (string) => parseInt(string.replace(/\D/g, ''), 10) || 0;
+            const getTodayDate = () => new Date().toISOString().split('T')[0];
+            const formatDisplayDate = (dateString) => {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString.includes('T') ? dateString : dateString + 'T00:00:00');
+                return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            };
+
+            function formatRupiahInput(e) {
+                const input = e.target;
+                let numericValue = parseRupiah(input.value);
+                input.value = numericValue > 0 ? formatRupiah(numericValue) : '';
+            }
+
+            // --- Update & Render Functions ---
+            function renderDaftarPembelianAwal() {
+                daftarPembelianEl.innerHTML = '';
+                if (daftarPembelianAwal.length === 0) {
+                    daftarPembelianEl.innerHTML = `<li class="text-gray-500 text-sm">Belum ada pembelian kuota.</li>`;
+                }
+                daftarPembelianAwal.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-gray-100 p-3 rounded-md flex justify-between items-center';
+                    li.innerHTML = `
+                        <div>
+                            <span>${item.deskripsi}: <strong>Rp ${formatRupiah(item.amount)}</strong></span>
+                            <span class="block text-xs text-gray-500">Tgl Akhir: ${formatDisplayDate(item.masa_aktif)} | Sumber: ${item.sumber_modal || 'N/A'}</span>
+                        </div>
+                        <button type="button" data-id="${item.id}" class="text-red-500 hover:text-red-700 font-semibold text-sm js-delete-pembelian-btn">Hapus</button>
+                    `;
+                    daftarPembelianEl.appendChild(li);
+                });
+            }
+
+            function renderSemuaPelanggan(filter = '') {
+                tabelPelanggan.innerHTML = '';
+                kartuPelanggan.innerHTML = '';
+
+                const filteredPelanggan = semuaPelanggan.filter(p => p.nama.toLowerCase().includes(filter.toLowerCase()));
+
+                if (filteredPelanggan.length === 0) {
+                    const noDataMessage = filter ? `<tr><td colspan="5" class="text-center py-4 text-gray-500">Tidak ada pelanggan dengan nama "${filter}".</td></tr>` : `<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada data pelanggan.</td></tr>`;
+                    tabelPelanggan.innerHTML = noDataMessage;
+                    kartuPelanggan.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500">${noDataMessage.replace(/<[^>]+>/g, '')}</div>`;
+                    return;
+                }
+
+                filteredPelanggan.forEach(pelanggan => {
+                    const totalPembayaran = pelanggan.pembayaran.reduce((sum, item) => sum + item.amount, 0);
+                    const totalPembelian = pelanggan.pembelian.reduce((sum, item) => sum + item.amount, 0);
+                    const sisaSaldo = totalPembayaran - totalPembelian;
+
+                    const jatuhTempo = pelanggan.masa_aktif ? new Date(pelanggan.masa_aktif) : null;
+                    const jatuhTempoFormatted = jatuhTempo ? jatuhTempo.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : 'N/A';
+                    const isJatuhTempo = jatuhTempo ? new Date() > jatuhTempo : false;
+
+                    // Render Tabel
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${pelanggan.nama}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pelanggan.nomor_hp || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${isJatuhTempo ? 'text-red-600 font-bold' : 'text-gray-500'}">${jatuhTempoFormatted}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold ${sisaSaldo < 0 ? 'text-red-600' : 'text-green-600'}">Rp ${formatRupiah(sisaSaldo)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 js-detail-pelanggan" data-id="${pelanggan.id}">Detail</button>
+                            <button class="text-red-600 hover:text-red-900 ml-4 js-delete-pelanggan" data-id="${pelanggan.id}">Hapus</button>
+                        </td>
+                    `;
+                    tabelPelanggan.appendChild(row);
+
+                    // Render Kartu
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-2';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-lg text-gray-800">${pelanggan.nama}</span>
+                        </div>
+                        <p class="text-sm text-gray-600">HP: <span class="font-medium text-gray-800">${pelanggan.nomor_hp || '-'}</span></p>
+                        <p class="text-sm text-gray-600">Jatuh Tempo: <span class="${isJatuhTempo ? 'text-red-600 font-bold' : 'text-gray-800'}">${jatuhTempoFormatted}</span></p>
+                        <p class="text-sm text-gray-600">Sisa Saldo: <span class="font-bold ${sisaSaldo < 0 ? 'text-red-600' : 'text-green-600'}">Rp ${formatRupiah(sisaSaldo)}</span></p>
+                        <div class="pt-2 border-t border-gray-100 flex justify-end space-x-2">
+                            <button class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold js-detail-pelanggan" data-id="${pelanggan.id}">Detail</button>
+                            <button class="text-red-600 hover:text-red-900 text-sm font-semibold js-delete-pelanggan" data-id="${pelanggan.id}">Hapus</button>
+                        </div>
+                    `;
+                    kartuPelanggan.appendChild(card);
+                });
+            }
+
+            // --- Data Persistence ---
+            async function loadData() {
+                tabelPelanggan.innerHTML = `<tr><td colspan="5" class="text-center py-4">Memuat data dari server...</td></tr>`;
+                kartuPelanggan.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">Memuat data dari server...</div>`;
+                try {
+                    const result = await sendDataToSheet('read');
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        semuaPelanggan = result.data.map(p => {
+                            const pembayaran = [];
+                            if (p.pembayaran_awal) {
+                                // Karena sheet hanya punya total, kita tampilkan sebagai satu item.
+                                // Riwayat detail pembayaran hanya akan terlihat di modal selama sesi berjalan.
+                                pembayaran.push({
+                                    id: p.id, amount: Number(p.pembayaran_awal), tanggal: p.tanggal_aktivasi,
+                                    deskripsi: 'Total Pembayaran Tercatat', metode: p.metode_pembayaran || 'N/A'
+                                });
+                            }
+                            let pembelian = [];
+                            try {
+                                if (p.kuota && typeof p.kuota === 'string') pembelian = JSON.parse(p.kuota);
+                            } catch (e) { console.error(`Gagal parse JSON kuota untuk pelanggan ${p.id}:`, p.kuota); }
+
+                            // Simpan data asli dari sheet untuk memastikan update tidak menghilangkan data
+                            return { 
+                                id: p.id, 
+                                nama: p.nama, 
+                                nomor_hp: p.nomor, 
+                                masa_aktif: p.masa_aktif, 
+                                pembayaran, // Array yang dikonstruksi untuk tampilan
+                                pembelian, // Array yang dikonstruksi untuk tampilan
+                                tanggal_aktivasi: p.tanggal_aktivasi, // Data asli
+                                pembayaran_awal: p.pembayaran_awal, // Data asli
+                                metode_pembayaran: p.metode_pembayaran // Data asli
+                            };
+                        });
+                        renderSemuaPelanggan(searchPelangganEl.value);
+                    } else {
+                        throw new Error(result.message || 'Format data dari server tidak valid.');
+                    }
+                } catch (error) {
+                    console.error("Gagal memuat data:", error);
+                    const message = "Gagal memuat data. Pastikan URL Apps Script benar dan coba muat ulang halaman.";
+                    tabelPelanggan.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">${message}</td></tr>`;
+                    kartuPelanggan.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">${message}</div>`;
+                    semuaPelanggan = [];
+                }
+            }
+
+            function resetForm() {
+                formPelanggan.reset();
+                daftarPembelianAwal = [];
+                tanggalAktivasiEl.value = getTodayDate();
+                renderDaftarPembelianAwal();
+            }
+
+            // --- Event Listeners ---
+            btnTambahKuota.addEventListener('click', () => {
+                const jumlah = parseRupiah(jumlahPembelianEl.value);
+                const deskripsi = deskripsiKuotaEl.value.trim();
+                const sumberModal = document.getElementById('sumber-modal-kuota').value;
+                const masaAktif = document.getElementById('masa-aktif-kuota').value.trim();
+
+                if (jumlah > 0 && deskripsi) {
+                    daftarPembelianAwal.push({ id: Date.now(), deskripsi: deskripsi, amount: jumlah, sumber_modal: sumberModal, masa_aktif: masaAktif });
+                    jumlahPembelianEl.value = '';
+                    deskripsiKuotaEl.value = '';
+                    document.getElementById('sumber-modal-kuota').value = 'Agen Pulsa';
+                    document.getElementById('masa-aktif-kuota').value = '';
+
+                    renderDaftarPembelianAwal();
+                } else {
+                    alert('Masukkan deskripsi dan jumlah pembelian yang valid.');
+                }
+            });
+
+            tanggalAktivasiEl.addEventListener('input', () => {
+                const aktivasiDate = tanggalAktivasiEl.value;
+                if (aktivasiDate) {
+                    // Buat objek tanggal dari input, pastikan zona waktu tidak bergeser
+                    const dateParts = aktivasiDate.split('-').map(part => parseInt(part, 10));
+                    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                    date.setDate(date.getDate() + 29); // Tambah 29 hari (total 30 hari termasuk hari aktivasi)
+                    masaAktifPelangganEl.value = date.toISOString().split('T')[0];
+                } else {
+                    masaAktifPelangganEl.value = '';
+                }
+            });
+
+            daftarPembelianEl.addEventListener('click', (e) => {
+                if (e.target.classList.contains('js-delete-pembelian-btn')) {
+                    const itemId = parseInt(e.target.dataset.id, 10);
+                    daftarPembelianAwal = daftarPembelianAwal.filter(p => p.id !== itemId);
+                    renderDaftarPembelianAwal();
+                }
+            });
+
+            pembayaranAwalEl.addEventListener('input', formatRupiahInput);
+            jumlahPembelianEl.addEventListener('input', formatRupiahInput);
+
+            formPelanggan.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = formPelanggan.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Mendaftarkan...';
+
+                const metodePembayaranAwal = document.getElementById('metode-pembayaran-awal').value;
+                const pembayaranAwal = parseRupiah(pembayaranAwalEl.value);
+                
+                const pelangganData = {
+                    id: Date.now(),
+                    nama: namaPelangganEl.value.trim(),
+                    nomor: nomorHpEl.value.trim(),
+                    tanggal_aktivasi: tanggalAktivasiEl.value,
+                    masa_aktif: masaAktifPelangganEl.value.trim(),
+                    pembayaran_awal: pembayaranAwal,
+                    metode_pembayaran: metodePembayaranAwal,
+                    kuota: JSON.stringify(daftarPembelianAwal.map(p => ({...p, tanggal: tanggalAktivasiEl.value })))
+                };
+                
+                if (!pelangganData.nama || !pembayaranAwal || !tanggalAktivasiEl.value) {
+                    alert('Nama, Tanggal Aktivasi, dan Pembayaran Awal wajib diisi.');
+                    return;
+                }
+
+                try {
+                    const result = await sendDataToSheet('create', pelangganData);
+                    if (result.status === 'success') {
+                        alert('Pelanggan berhasil didaftarkan!');
+                        resetForm();
+                        await loadData(); // Muat ulang data dari sheet
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Gagal mendaftarkan pelanggan: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Daftarkan Pelanggan';
+                }
+            });
+
+            btnReset.addEventListener('click', resetForm);
+
+            async function handleAksiPelanggan(e) {
+                const target = e.target;
+                const id = parseInt(target.dataset.id);
+
+                if (target.classList.contains('js-delete-pelanggan')) {
+                    if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
+                        try {
+                            const result = await sendDataToSheet('delete', { id });
+                            if (result.status === 'success') {
+                                alert(result.message);
+                                await loadData();
+                            } else { throw new Error(result.message); }
+                        } catch (error) {
+                            alert('Gagal menghapus pelanggan: ' + error.message);
+                        }
+                    }
+                }
+
+                if (target.classList.contains('js-detail-pelanggan')) {
+                    openDetailModal(id);
+                }
+            }
+
+            // --- Modal Logic ---
+            function openDetailModal(id) {
+                currentPelangganId = id;
+                const pelanggan = semuaPelanggan.find(p => p.id === id);
+                if (!pelanggan) return;
+
+                document.getElementById('modal-nama-pelanggan').textContent = pelanggan.nama;
+                document.getElementById('modal-nomor-hp').textContent = pelanggan.nomor_hp || '-';
+                const masaAktifDate = pelanggan.masa_aktif;
+                if (masaAktifDate) {
+                    document.getElementById('modal-masa-aktif').textContent = new Date(masaAktifDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                } else {
+                    document.getElementById('modal-masa-aktif').textContent = '-';
+                }
+                renderModalDetails(pelanggan);
+                detailModal.classList.remove('hidden');
+            }
+
+            function renderModalDetails(pelanggan) {
+                const totalPembayaran = pelanggan.pembayaran.reduce((sum, item) => sum + item.amount, 0);
+                const totalPembelian = pelanggan.pembelian.reduce((sum, item) => sum + item.amount, 0);
+                const sisaSaldo = totalPembayaran - totalPembelian;
+
+                document.getElementById('modal-total-pembayaran').textContent = `Rp ${formatRupiah(totalPembayaran)}`;
+                document.getElementById('modal-total-pembelian').textContent = `Rp ${formatRupiah(totalPembelian)}`;
+                document.getElementById('modal-sisa-saldo').textContent = `Rp ${formatRupiah(sisaSaldo)}`;
+
+                const listPembayaran = document.getElementById('modal-list-pembayaran');
+                listPembayaran.innerHTML = pelanggan.pembayaran.map(p => `
+                    <li class="text-sm bg-gray-100 p-2 rounded-md flex justify-between items-center">
+                        <div>
+                            <span>${p.deskripsi} - <strong>Rp ${formatRupiah(p.amount)}</strong></span>
+                            <span class="block text-xs text-gray-500">${new Date(p.tanggal).toLocaleDateString('id-ID')} via ${p.metode || 'N/A'}</span>
+                        </div>
+                    </li>`).join('');
+
+                const listPembelian = document.getElementById('modal-list-pembelian');
+                listPembelian.innerHTML = pelanggan.pembelian.map(p => `
+                    <li class="text-sm bg-gray-100 p-2 rounded-md flex justify-between items-center">
+                        <div>
+                            <span>${p.deskripsi} - <strong>Rp ${formatRupiah(p.amount)}</strong></span>
+                            <span class="block text-xs text-gray-500">${new Date(p.tanggal).toLocaleDateString('id-ID')} | Tgl Akhir: ${formatDisplayDate(p.masa_aktif)} | Sumber: ${p.sumber_modal || 'N/A'}</span>
+                        </div>
+                    </li>`).join('');
+            }
+
+            document.getElementById('form-tambah-pembayaran').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById('modal-jumlah-pembayaran');
+                const metodeInput = document.getElementById('modal-metode-pembayaran');
+                const amount = parseRupiah(input.value);
+                const metode = metodeInput.value;
+                if (amount > 0 && currentPelangganId) {
+                    const pelangganIndex = semuaPelanggan.findIndex(p => p.id === currentPelangganId);
+                    if (pelangganIndex > -1) {
+                        const pelangganToUpdate = semuaPelanggan[pelangganIndex];
+                        const newPayment = {
+                            id: Date.now(), amount: amount, tanggal: getTodayDate(), deskripsi: 'Pembayaran Bulanan', metode: metode
+                        };
+                        pelangganToUpdate.pembayaran.push(newPayment);
+                        
+                        const totalPembayaran = pelangganToUpdate.pembayaran.reduce((sum, item) => sum + item.amount, 0);
+                        const newMasaAktif = new Date(new Date(newPayment.tanggal).setDate(new Date(newPayment.tanggal).getDate() + 29)).toISOString().split('T')[0];
+
+                        const payload = {
+                            id: pelangganToUpdate.id,
+                            // Sertakan data lain yang tidak berubah untuk mencegah data hilang
+                            nama: pelangganToUpdate.nama,
+                            nomor: pelangganToUpdate.nomor_hp,
+                            tanggal_aktivasi: pelangganToUpdate.tanggal_aktivasi,
+                            kuota: JSON.stringify(pelangganToUpdate.pembelian),
+                            // Kolom yang diupdate
+                            pembayaran_awal: totalPembayaran, // Kolom ini sekarang dianggap sebagai total pembayaran
+                            masa_aktif: newMasaAktif,
+                            metode_pembayaran: metode // Gunakan metode pembayaran terbaru
+                        };
+                        
+                        try {
+                            const result = await sendDataToSheet('update', payload);
+                            if (result.status === 'success') {
+                                // Update data lokal juga agar konsisten
+                                pelangganToUpdate.pembayaran_awal = totalPembayaran;
+                                pelangganToUpdate.metode_pembayaran = metode;
+                                pelangganToUpdate.masa_aktif = newMasaAktif;
+                                renderModalDetails(pelangganToUpdate);
+                                renderSemuaPelanggan(searchPelangganEl.value);
+                                input.value = '';
+                                metodeInput.value = 'Cash';
+                            } else { throw new Error(result.message); }
+                        } catch (error) {
+                            alert('Gagal menambah pembayaran: ' + error.message);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('form-tambah-pembelian').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const deskripsiInput = document.getElementById('modal-deskripsi-kuota');
+                const jumlahInput = document.getElementById('modal-jumlah-pembelian');
+                const amount = parseRupiah(jumlahInput.value);
+                const deskripsi = deskripsiInput.value.trim();
+                const sumberModal = document.getElementById('modal-sumber-modal-kuota').value;
+                const masaAktif = document.getElementById('modal-masa-aktif-kuota').value.trim();
+
+                if (amount > 0 && deskripsi && currentPelangganId) {                    
+                    const pelangganIndex = semuaPelanggan.findIndex(p => p.id === currentPelangganId);
+                    if (pelangganIndex > -1) {
+                        const pelangganToUpdate = semuaPelanggan[pelangganIndex];
+                        pelangganToUpdate.pembelian.push({
+                            id: Date.now(), amount: amount, tanggal: getTodayDate(), deskripsi: deskripsi, sumber_modal: sumberModal, masa_aktif: masaAktif
+                        });
+
+                        const payload = {
+                            id: pelangganToUpdate.id,
+                            // Sertakan semua data lain untuk mencegah data hilang di sheet
+                            nama: pelangganToUpdate.nama,
+                            nomor: pelangganToUpdate.nomor_hp,
+                            tanggal_aktivasi: pelangganToUpdate.tanggal_aktivasi,
+                            masa_aktif: pelangganToUpdate.masa_aktif,
+                            pembayaran_awal: pelangganToUpdate.pembayaran_awal,
+                            metode_pembayaran: pelangganToUpdate.metode_pembayaran,
+                            // Kolom yang benar-benar diupdate
+                            kuota: JSON.stringify(pelangganToUpdate.pembelian)
+                        };
+
+                        try {
+                            const result = await sendDataToSheet('update', payload);
+                            if (result.status === 'success') {
+                                renderModalDetails(pelangganToUpdate);
+                                renderSemuaPelanggan(searchPelangganEl.value);
+                                deskripsiInput.value = '';
+                                jumlahInput.value = '';
+                                document.getElementById('modal-sumber-modal-kuota').value = 'Agen Pulsa';
+                                document.getElementById('modal-masa-aktif-kuota').value = '';
+                            } else { throw new Error(result.message); }
+                        } catch (error) {
+                            alert('Gagal menambah pembelian kuota: ' + error.message);
+                        }
+                    }
+                }
+            });
+
+            modalCloseBtn.addEventListener('click', () => detailModal.classList.add('hidden'));
+            document.getElementById('modal-jumlah-pembayaran').addEventListener('input', formatRupiahInput);
+            document.getElementById('modal-jumlah-pembelian').addEventListener('input', formatRupiahInput);
+
+            // --- Global Event Listeners ---
+            tabelPelanggan.addEventListener('click', handleAksiPelanggan);
+            kartuPelanggan.addEventListener('click', handleAksiPelanggan);
+            searchPelangganEl.addEventListener('input', (e) => renderSemuaPelanggan(e.target.value));
+            btnReset.addEventListener('click', resetForm);
+
+            // --- Initial Load ---
+            resetForm(); // Reset form first
+            loadData(); // Then load data from sheet
+        });
+    </script>
+</body>
+</html>

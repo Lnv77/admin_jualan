@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Transaksi - Cash</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Backdrop untuk mobile sidebar -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden md:hidden backdrop-blur-sm"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 id="header-title" class="text-xl font-semibold ml-3">Riwayat Transaksi - Cash</h1>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <!-- Balance Display -->
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700">Saldo Akhir Cash</h2>
+                        <p id="final-balance" class="text-3xl font-bold text-gray-900 mt-2">Memuat...</p>
+                    </div>
+
+                    <!-- History Table -->
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full mx-auto">
+                        <h2 class="text-xl font-semibold mb-4">Detail Riwayat</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pemasukan</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pengeluaran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Rows will be inserted here by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        // !! PENTING: Ganti dengan URL Web App dari Google Apps Script Anda !!
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+
+        // ===================================================================================
+        // !! UBAH VARIABEL INI SESUAI HALAMANNYA !!
+        // Untuk dana.html, ganti menjadi "DANA"
+        // Untuk gopay.html, ganti menjadi "GoPay", dst.
+        const BALANCE_NAME = "Cash";
+        // ===================================================================================
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const formatToRupiahDisplay = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+            async function sendDataToSheet(action, payload, sheetName) {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action, payload, sheetName }) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            }
+
+            async function loadAndDisplayHistory() {
+                const tableBody = document.getElementById('history-table-body');
+                const finalBalanceEl = document.getElementById('final-balance');
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">Memuat data riwayat...</td></tr>`;
+                finalBalanceEl.textContent = 'Memuat...';
+
+                try {
+                    // Selalu ambil data terbaru dari Google Sheets secara paralel
+                    const [resultPulsa, resultAkrab, resultTopup, resultPengeluaran, resultWifi] = await Promise.all([
+                        sendDataToSheet('read', {}, 'pulsa'),
+                        sendDataToSheet('read', {}, 'paket_akrab'),
+                        sendDataToSheet('read', {}, 'topup'),
+                        sendDataToSheet('read', {}, 'pengeluaran'),
+                        sendDataToSheet('read', {}, 'wifi_pelanggan') // Ambil data WiFi
+                    ]);
+
+                    // Proses dan normalisasi data untuk memastikan nama properti konsisten
+                    const transaksiPulsa = (resultPulsa.status === 'success' && Array.isArray(resultPulsa.data))
+                        ? resultPulsa.data.map(tx => ({
+                            tanggal: tx.tanggal || tx.Tanggal,
+                            nomor: tx.nomor || tx.Nomor || tx['No. HP'] || tx.no_hp,
+                            nama_pulsa: tx.nama_pulsa || tx['Nama Pulsa'] || tx.Produk,
+                            modal: tx.modal || tx.Modal || 0,
+                            harga: tx.harga || tx.Harga || tx['Harga Jual'] || 0,
+                            sumber_modal: tx.sumber_modal || tx['Sumber Modal'],
+                            pembayaran: tx.pembayaran || tx.Pembayaran
+                        }))
+                        : [];
+
+                    const pelangganAkrab = (resultAkrab.status === 'success' && Array.isArray(resultAkrab.data))
+                        ? resultAkrab.data.map(p => ({
+                            ...p,
+                            tanggalTambah: p.tanggal_ditambahkan || p.tanggalTambah,
+                            noHp: p.nomor || p.noHp,
+                            sumberModal: p['sumber modal'] || p.sumberModal,
+                            metodePembayaran: p.metode_pembayaran || p.metodePembayaran,
+                            modal: p.modal || 0,
+                            harga: p.harga || 0
+                        }))
+                        : [];
+
+                    const dataTopup = (resultTopup.status === 'success' && Array.isArray(resultTopup.data))
+                        ? resultTopup.data.map(t => ({ ...t, modal: t.modal || 0, biaya_admin: t.biaya_admin || 0 }))
+                        : [];
+
+                    const dataPengeluaran = (resultPengeluaran.status === 'success' && Array.isArray(resultPengeluaran.data))
+                        ? resultPengeluaran.data.map(e => ({ ...e, jumlah: e.jumlah || 0, sumber_dana: e.sumber_dana || e.sumber }))
+                        : [];
+
+                    // Proses data WiFi
+                    const dataWifi = (resultWifi.status === 'success' && Array.isArray(resultWifi.data))
+                        ? resultWifi.data.map(item => {
+                            let kuotaParsed = [];
+                            try {
+                                if (item.kuota && typeof item.kuota === 'string') {
+                                    kuotaParsed = JSON.parse(item.kuota);
+                                }
+                            } catch (e) { console.error(`Gagal parse JSON kuota untuk pelanggan WiFi ${item.id}:`, item.kuota); }
+                            return { ...item, kuota: kuotaParsed };
+                        }) : [];
+
+                    let combinedHistory = [];
+                    let finalBalance = 0;
+
+                    transaksiPulsa.forEach(tx => {
+                        const modal = tx.modal;
+                        const harga = tx.harga;
+                        if (tx.sumber_modal === BALANCE_NAME) {
+                            finalBalance -= modal;
+                            combinedHistory.push({ tanggal: new Date(tx.tanggal), jenis: 'Pulsa', keterangan: `Modal untuk ${tx.nama_pulsa} (${tx.nomor})`, pemasukan: 0, pengeluaran: modal });
+                        }
+                        if (tx.pembayaran === BALANCE_NAME) {
+                            finalBalance += harga;
+                            combinedHistory.push({ tanggal: new Date(tx.tanggal), jenis: 'Pulsa', keterangan: `Penjualan ${tx.nama_pulsa} (${tx.nomor})`, pemasukan: harga, pengeluaran: 0 });
+                        }
+                    });
+
+                    pelangganAkrab.forEach(p => {
+                        const modal = p.modal;
+                        const harga = p.harga;
+                        if (p.metodePembayaran === BALANCE_NAME) {
+                            finalBalance += harga;
+                            combinedHistory.push({ tanggal: new Date(p.tanggalTambah), jenis: 'Paket Akrab', keterangan: `Pembayaran dari ${p.nama} (${p.noHp})`, pemasukan: harga, pengeluaran: 0 });
+                        }
+                    });
+
+                    dataTopup.forEach(topup => {
+                        const modal = topup.modal;
+                        const biayaAdmin = topup.biaya_admin;
+                        const totalPengeluaran = modal + biayaAdmin;
+                        if (topup.sumber_modal === BALANCE_NAME) {
+                            finalBalance -= totalPengeluaran;
+                            combinedHistory.push({ tanggal: new Date(topup.tanggal), jenis: 'Top Up', keterangan: topup.keterangan || `Top up ke ${topup.tujuan_saldo}`, pemasukan: 0, pengeluaran: totalPengeluaran });
+                        }
+                        if (topup.tujuan_saldo === BALANCE_NAME) {
+                            finalBalance += modal;
+                            combinedHistory.push({ tanggal: new Date(topup.tanggal), jenis: 'Top Up', keterangan: topup.keterangan || `Top up dari ${topup.sumber_modal}`, pemasukan: modal, pengeluaran: 0 });
+                        }
+                    });
+
+                    dataPengeluaran.forEach(item => {
+                        const jumlah = item.jumlah;
+                        if (item.sumber_dana === BALANCE_NAME) {
+                            finalBalance -= jumlah;
+                            combinedHistory.push({ tanggal: new Date(item.tanggal), jenis: 'Pengeluaran', keterangan: item.keterangan, pemasukan: 0, pengeluaran: jumlah });
+                        }
+                    });
+
+                    combinedHistory.sort((a, b) => b.tanggal - a.tanggal);
+
+                    tableBody.innerHTML = '';
+                    if (combinedHistory.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">Tidak ada riwayat transaksi untuk ${BALANCE_NAME}.</td></tr>`;
+                    } else {
+                        combinedHistory.forEach(item => {
+                            const row = document.createElement('tr');
+                            const tanggalFormatted = item.tanggal.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tanggalFormatted}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.jenis}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">${item.keterangan}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right">${item.pemasukan > 0 ? formatToRupiahDisplay(item.pemasukan) : '-'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">${item.pengeluaran > 0 ? formatToRupiahDisplay(item.pengeluaran) : '-'}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+
+                    document.getElementById('final-balance').textContent = formatToRupiahDisplay(finalBalance);
+
+                } catch (error) {
+                    console.error("Gagal memuat riwayat:", error);
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat data. Coba lagi.</td></tr>`;
+                    finalBalanceEl.textContent = 'Error';
+                }
+            }
+
+            loadAndDisplayHistory();
+        });
+    </script>
+</body>
+</html>

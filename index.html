@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Penjualan Pulsa</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar will be loaded here -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 id="header-title" class="text-xl font-semibold ml-3">Input Penjualan Pulsa</h1>
+                </div>
+                <div></div>
+            </header>
+            <main class="flex-1 overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <div id="content-pulsa">
+                        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl mx-auto">
+                            <form id="form-pulsa">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal & Waktu</label>
+                                        <input type="datetime-local" id="tanggal" name="tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="no_hp" class="block text-sm font-medium text-gray-700">No. HP</label>
+                                        <input type="tel" id="no_hp" name="no_hp" placeholder="081234567890" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div class="md:col-span-2 relative">
+                                        <label for="nama_pulsa" class="block text-sm font-medium text-gray-700">Nama Pulsa / Nominal</label>
+                                        <input type="text" id="nama_pulsa" name="nama_pulsa" placeholder="Contoh: Telkomsel 10.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <div id="suggestions-container" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden shadow-lg max-h-60 overflow-y-auto"></div>
+                                    </div>
+                                    <div>
+                                        <label for="modal" class="block text-sm font-medium text-gray-700">Modal (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="modal" name="modal" placeholder="10.500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="harga" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="harga" name="harga" placeholder="12.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="sumber_modal_pulsa" class="block text-sm font-medium text-gray-700">Sumber Modal</label>
+                                        <select id="sumber_modal_pulsa" name="sumber_modal_pulsa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option value="Agen Pulsa">Agen Pulsa</option>
+                                            <option value="DANA">DANA</option>
+                                            <option value="GoPay">GoPay</option>
+                                            <option value="ShopeePay">ShopeePay</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="pembayaran" class="block text-sm font-medium text-gray-700">Pembayaran</label>
+                                        <select id="pembayaran" name="pembayaran" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Hutang">Hutang</option>
+                                            <option value="Agen Pulsa">Agen Pulsa</option>
+                                            <option value="DANA">DANA</option>
+                                            <option value="GoPay">GoPay</option>
+                                            <option value="ShopeePay">ShopeePay</option>
+                                        </select>
+                                    </div>
+                                    <div id="pelanggan-container" class="md:col-span-2 hidden">
+                                        <label for="pelanggan" class="block text-sm font-medium text-gray-700">Nama Pelanggan (Hutang)</label>
+                                        <input type="text" id="pelanggan" name="pelanggan" placeholder="Nama yang berhutang" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Simpan Transaksi
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="container mx-auto mt-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto">
+                        <h2 class="text-xl font-semibold mb-4">Data Transaksi Pulsa</h2>
+                        <div class="mb-4">
+                            <label for="search-pulsa" class="sr-only">Cari Transaksi</label>
+                            <input type="text" id="search-pulsa" placeholder="Cari berdasarkan ID, No. HP, atau Produk..." class="block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sumber Modal</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. HP</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modal</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Jual</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body-pulsa" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="card-body-pulsa" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+                            <!-- Kartu data akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Modal Detail -->
+    <div id="detail-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+      <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 text-center" id="modal-title">Detail Transaksi</h3>
+          <div id="modal-content" class="mt-4 px-2 py-3 text-sm text-gray-800 space-y-2"></div>
+          <div class="items-center px-4 py-3">
+            <button id="modal-close-btn" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal Edit -->
+    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Transaksi</h3>
+            <form id="form-edit-pulsa">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="edit-tanggal" class="block text-sm font-medium text-gray-700">Tanggal & Waktu</label>
+                        <input type="datetime-local" id="edit-tanggal" name="tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-no_hp" class="block text-sm font-medium text-gray-700">No. HP</label>
+                        <input type="tel" id="edit-no_hp" name="no_hp" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-nama_pulsa" class="block text-sm font-medium text-gray-700">Nama Pulsa / Nominal</label>
+                        <input type="text" id="edit-nama_pulsa" name="nama_pulsa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-modal-input" class="block text-sm font-medium text-gray-700">Modal (Rp)</label>
+                        <input type="text" inputmode="numeric" id="edit-modal-input" name="modal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-harga" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)</label>
+                        <input type="text" inputmode="numeric" id="edit-harga" name="harga" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-sumber_modal_pulsa" class="block text-sm font-medium text-gray-700">Sumber Modal</label>
+                        <select id="edit-sumber_modal_pulsa" name="sumber_modal_pulsa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="Agen Pulsa">Agen Pulsa</option>
+                            <option value="DANA">DANA</option>
+                            <option value="GoPay">GoPay</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-pembayaran" class="block text-sm font-medium text-gray-700">Pembayaran</label>
+                        <select id="edit-pembayaran" name="pembayaran" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="Cash">Cash</option>
+                            <option value="Hutang">Hutang</option>
+                            <option value="Agen Pulsa">Agen Pulsa</option>
+                            <option value="DANA">DANA</option>
+                            <option value="GoPay">GoPay</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                        </select>
+                                    </div>
+                                    <div id="edit-pelanggan-container" class="md:col-span-2 hidden">
+                                        <label for="edit-pelanggan" class="block text-sm font-medium text-gray-700">Nama Pelanggan (Hutang)</label>
+                                        <input type="text" id="edit-pelanggan" name="pelanggan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="edit-cancel-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Batal</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // =================================================================
+            // KODE DI BAWAH INI HANYA UNTUK LOGIKA SPESIFIK HALAMAN PENJUALAN PULSA
+            // =================================================================
+            const modalInput = document.getElementById('modal');
+            const hargaInput = document.getElementById('harga');
+            const formPulsa = document.getElementById('form-pulsa');
+            const tableBodyPulsa = document.getElementById('table-body-pulsa');
+            const namaPulsaInput = document.getElementById('nama_pulsa');
+            const suggestionsContainer = document.getElementById('suggestions-container');
+            let dataProdukPulsa = [];
+            const detailModal = document.getElementById('detail-modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('form-edit-pulsa');
+            const editCancelBtn = document.getElementById('edit-cancel-btn');
+            const cardBodyPulsa = document.getElementById('card-body-pulsa');
+            const pembayaranSelect = document.getElementById('pembayaran');
+            const pelangganContainer = document.getElementById('pelanggan-container');
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+            const searchInputPulsa = document.getElementById('search-pulsa');
+
+            let allPulsaTransactions = []; // Variabel global untuk menampung transaksi dari server
+
+            function formatRupiah(e) {
+                const input = e.target;
+                let numericValue = input.value.replace(/\D/g, '');
+                if (!numericValue) {
+                    input.value = '';
+                    return;
+                }
+                const formattedValue = new Intl.NumberFormat('id-ID').format(numericValue);
+                input.value = formattedValue;
+            }
+            modalInput.addEventListener('input', formatRupiah);
+            hargaInput.addEventListener('input', formatRupiah);
+            async function sendDataToSheet(action, payload, sheetName) {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify({ action, payload, sheetName: sheetName })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            }
+            formPulsa.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitButton = formPulsa.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+                const parseRupiah = (value) => parseInt(value.replace(/\D/g, ''), 10) || 0;
+                const modal = parseRupiah(modalInput.value);
+                const harga = parseRupiah(hargaInput.value);
+                const pembayaran = document.getElementById('pembayaran').value;
+                const pelanggan = document.getElementById('pelanggan').value;
+                const gsheetData = {
+                    id: Math.floor(100000 + Math.random() * 900000),
+                    tanggal: document.getElementById('tanggal').value,
+                    nomor: "'" + document.getElementById('no_hp').value, // Tambahkan ' untuk format teks di GSheet
+                    nama_pulsa: document.getElementById('nama_pulsa').value,
+                    modal: modal,
+                    harga: harga,
+                    sumber_modal: document.getElementById('sumber_modal_pulsa').value,
+                    pembayaran: pembayaran,
+                    pelanggan: pembayaran === 'Hutang' ? pelanggan : ''
+                };
+                try {
+                    const result = await sendDataToSheet('create', gsheetData, 'pulsa');
+                    if (result.status === 'success') {
+                        formPulsa.reset();
+                        alert(result.message);
+                        loadDataFromSheet(); // Muat ulang semua data dari sheet untuk menampilkan data baru
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Gagal menyimpan data ke Google Sheets. Error: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Transaksi';
+                    // Atur kembali tanggal ke waktu sekarang setelah submit
+                    setInitialDateTime();
+                }
+            });
+
+            pembayaranSelect.addEventListener('change', function() {
+                if (this.value === 'Hutang') {
+                    pelangganContainer.classList.remove('hidden');
+                } else {
+                    pelangganContainer.classList.add('hidden');
+                }
+            });
+
+            function renderTabelPulsa(transactions) {
+                tableBodyPulsa.innerHTML = '';
+                cardBodyPulsa.innerHTML = '';
+
+                const searchQuery = searchInputPulsa.value.toLowerCase().trim();
+                const filteredTransactions = transactions.filter(tx => {
+                    if (!searchQuery) return true; // Tampilkan semua jika pencarian kosong
+                    const idMatch = tx.id && tx.id.toString().includes(searchQuery);
+                    const noHpMatch = tx.nomor && tx.nomor.toLowerCase().includes(searchQuery);
+                    const produkMatch = tx.nama_pulsa && tx.nama_pulsa.toLowerCase().includes(searchQuery);
+                    return idMatch || noHpMatch || produkMatch;
+                });
+
+                if (filteredTransactions.length === 0) {
+                    const message = searchQuery ? `Tidak ada data yang cocok dengan pencarian "${searchQuery}".` : 'Belum ada data transaksi pulsa.';
+                    tableBodyPulsa.innerHTML = `<tr><td colspan="8" class="text-center py-4">${message}</td></tr>`;
+                    cardBodyPulsa.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
+                    return;
+                }
+                filteredTransactions.forEach(tx => {
+                    const row = document.createElement('tr');
+                    const tanggalFormatted = new Date(tx.tanggal).toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+                    const modal = tx.modal || tx.Modal || 0;
+                    const harga = tx.harga || tx.Harga || 0;
+                    // Render untuk Tabel Desktop
+                    row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.id}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${tx.sumber_modal}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${tanggalFormatted}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${tx.nomor}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${tx.nama_pulsa}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${modal.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${harga.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-detail-btn" data-id="${tx.id}">Detail</button>
+                            <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-edit-btn" data-id="${tx.id}">Edit</button>
+                            <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-delete-btn" data-id="${tx.id}">Delete</button>
+                        </td>
+                    `;
+                    tableBodyPulsa.appendChild(row);
+
+                    // Render untuk Card Mobile
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-2';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-gray-800">${tx.nama_pulsa}</span>
+                            <span class="text-xs bg-indigo-100 text-indigo-800 font-medium px-2 py-0.5 rounded">ID: ${tx.id}</span>
+                        </div>
+                        <p class="text-sm text-gray-600">${tx.nomor}</p>
+                        <p class="text-sm text-gray-600">${tanggalFormatted}</p>
+                        <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-lg font-semibold text-gray-800">Rp ${harga.toLocaleString('id-ID')}</span>
+                            <div class="flex space-x-1">
+                                <button class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-detail-btn" data-id="${tx.id}">Detail</button>
+                                <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-edit-btn" data-id="${tx.id}">Edit</button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-delete-btn" data-id="${tx.id}">Delete</button>
+                            </div>
+                        </div>`;
+                    cardBodyPulsa.appendChild(card);
+                });
+            }
+            async function handleTableActions(e) {
+                const target = e.target;
+                const id = target.dataset.id;
+                if (!id) return;
+                // Cari transaksi dari variabel global, bukan localStorage
+                const transaction = allPulsaTransactions.find(tx => tx.id == id);
+                if (!transaction) return;
+                if (target.classList.contains('js-detail-btn')) {
+                    const modal = transaction.modal || transaction.Modal || 0;
+                    const harga = transaction.harga || transaction.Harga || 0;
+                    let detailHTML = `
+                        <p><strong>ID Transaksi:</strong> ${transaction.id}</p>
+                        <p><strong>Tanggal:</strong> ${new Date(transaction.tanggal).toLocaleString('id-ID')}</p>
+                        <p><strong>No. HP:</strong> ${transaction.nomor}</p>
+                        <p><strong>Produk:</strong> ${transaction.nama_pulsa}</p>
+                        <p><strong>Modal:</strong> Rp ${modal.toLocaleString('id-ID')}</p>
+                        <p><strong>Harga Jual:</strong> Rp ${harga.toLocaleString('id-ID')}</p>
+                        <p><strong>Sumber Modal:</strong> ${transaction.sumber_modal}</p>
+                        <p><strong>Pembayaran:</strong> ${transaction.pembayaran}</p>
+                    `;
+                    if (transaction.pembayaran === 'Hutang' && transaction.pelanggan) {
+                        detailHTML += `<p><strong>Pelanggan:</strong> ${transaction.pelanggan}</p>`;
+                    }
+                    modalContent.innerHTML = detailHTML;
+                    detailModal.classList.remove('hidden');
+                }
+                if (target.classList.contains('js-delete-btn')) {
+                    if (confirm(`Apakah Anda yakin ingin menghapus transaksi dengan ID ${id}?`)) {
+                        try {
+                            target.textContent = 'Menghapus...';
+                            target.disabled = true;
+                            const result = await sendDataToSheet('delete', { id }, 'pulsa');
+                            if (result.status === 'success') {
+                                alert(result.message);
+                                loadDataFromSheet(); // Muat ulang data dari sheet
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        } catch (error) {
+                            alert('Gagal menghapus data: ' + error.message);
+                            target.textContent = 'Delete';
+                            target.disabled = false;
+                        }
+                    }
+                }
+                if (target.classList.contains('js-edit-btn')) {
+                    const modal = transaction.modal || transaction.Modal || 0;
+                    const harga = transaction.harga || transaction.Harga || 0;
+
+                    // Format tanggal agar sesuai dengan input datetime-local (YYYY-MM-DDTHH:mm)
+                    const date = new Date(transaction.tanggal);
+                    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                    const formattedDate = date.toISOString().slice(0, 16);
+
+                    document.getElementById('edit-id').value = transaction.id;
+                    document.getElementById('edit-tanggal').value = formattedDate;
+                    document.getElementById('edit-no_hp').value = transaction.nomor;
+                    document.getElementById('edit-nama_pulsa').value = transaction.nama_pulsa;
+                    document.getElementById('edit-modal-input').value = modal.toLocaleString('id-ID');
+                    document.getElementById('edit-harga').value = harga.toLocaleString('id-ID');
+                    document.getElementById('edit-sumber_modal_pulsa').value = transaction.sumber_modal;
+                    document.getElementById('edit-pembayaran').value = transaction.pembayaran;
+
+                    const editPelangganInput = document.getElementById('edit-pelanggan');
+                    const editPelangganContainer = document.getElementById('edit-pelanggan-container');
+                    if (transaction.pembayaran === 'Hutang') {
+                        editPelangganInput.value = transaction.pelanggan || '';
+                        editPelangganContainer.classList.remove('hidden');
+                    } else {
+                        editPelangganInput.value = '';
+                        editPelangganContainer.classList.add('hidden');
+                    }
+                    editModal.classList.remove('hidden');
+                }
+            }
+            modalCloseBtn.addEventListener('click', () => detailModal.classList.add('hidden'));
+            editCancelBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+            document.getElementById('edit-modal-input').addEventListener('input', formatRupiah);
+            document.getElementById('edit-harga').addEventListener('input', formatRupiah);
+
+            const editPembayaranSelect = document.getElementById('edit-pembayaran');
+            const editPelangganContainer = document.getElementById('edit-pelanggan-container');
+            editPembayaranSelect.addEventListener('change', function() {
+                if (this.value === 'Hutang') {
+                    editPelangganContainer.classList.remove('hidden');
+                } else {
+                    editPelangganContainer.classList.add('hidden');
+                }
+            });
+
+            function setInitialDateTime() {
+                const tanggalInput = document.getElementById('tanggal');
+                if (tanggalInput) {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    tanggalInput.value = now.toISOString().slice(0,16);
+                }
+            }
+
+            editForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitButton = editForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+                const parseRupiah = (value) => parseInt(value.replace(/\D/g, ''), 10) || 0;
+                const updatedTxData = {
+                    id: document.getElementById('edit-id').value,
+                    tanggal: document.getElementById('edit-tanggal').value,
+                    nomor: "'" + document.getElementById('edit-no_hp').value, // Tambahkan ' untuk format teks di GSheet
+                    nama_pulsa: document.getElementById('edit-nama_pulsa').value,
+                    modal: parseRupiah(document.getElementById('edit-modal-input').value),
+                    harga: parseRupiah(document.getElementById('edit-harga').value),
+                    sumber_modal: document.getElementById('edit-sumber_modal_pulsa').value,
+                    pembayaran: document.getElementById('edit-pembayaran').value,
+                    pelanggan: document.getElementById('edit-pembayaran').value === 'Hutang' ? document.getElementById('edit-pelanggan').value : ''
+                };
+                try {
+                    const result = await sendDataToSheet('update', updatedTxData, 'pulsa');
+                    if (result.status === 'success') {
+                        editModal.classList.add('hidden');
+                        alert('Data transaksi berhasil diperbarui.');
+                        loadDataFromSheet(); // Muat ulang data dari sheet
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    alert('Gagal memperbarui data: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Perubahan';
+                }
+            });
+            searchInputPulsa.addEventListener('input', () => {
+                // Logika filter sekarang ada di dalam renderTabelPulsa
+                renderTabelPulsa(allPulsaTransactions);
+            });
+
+            tableBodyPulsa.addEventListener('click', handleTableActions);
+            cardBodyPulsa.addEventListener('click', handleTableActions);
+
+            async function loadDataFromSheet() {
+                tableBodyPulsa.innerHTML = `<tr><td colspan="8" class="text-center py-4">Memuat data dari server...</td></tr>`;
+                cardBodyPulsa.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">Memuat data dari server...</div>`;
+                try {
+                    const response = await sendDataToSheet('read', {}, 'pulsa');
+                    const rawData = response.data || response;
+                    const cleanString = (str) => (typeof str === 'string' ? str.trim().replace(/^"|"$/g, '') : str);
+
+                    if (Array.isArray(rawData)) {
+                        allPulsaTransactions = rawData.map(tx => ({
+                            id: tx.id || tx.ID,
+                            tanggal: tx.tanggal || tx.Tanggal,
+                            nomor: tx.nomor || tx.Nomor || tx['No. HP'] || tx.no_hp,
+                            nama_pulsa: tx.nama_pulsa || tx['Nama Pulsa'] || tx.Produk,
+                            modal: tx.modal || tx.Modal || 0,
+                            harga: tx.harga || tx.Harga || tx['Harga Jual'] || 0,
+                            sumber_modal: cleanString(tx.sumber_modal || tx['Sumber Modal']),
+                            pembayaran: cleanString(tx.pembayaran || tx.Pembayaran),
+                            pelanggan: tx.pelanggan || tx.Pelanggan
+                        }));
+                        // Hapus input pencarian dan render tabel dengan data baru
+                        searchInputPulsa.value = '';
+                        renderTabelPulsa(allPulsaTransactions);
+                    } 
+                } catch (error) {
+                    const message = "Gagal memuat data. Coba muat ulang halaman.";
+                    tableBodyPulsa.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-red-500">${message}</td></tr>`;
+                    cardBodyPulsa.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">${message}</div>`;
+                    allPulsaTransactions = [];
+                }
+            }
+
+            async function loadProdukPulsa() {
+                try {
+                    const result = await sendDataToSheet('read', {}, 'produk_pulsa');
+                    if (result.status === 'success') {
+                        dataProdukPulsa = result.data;
+                        localStorage.setItem('dataProdukPulsa', JSON.stringify(result.data));
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat data produk pulsa:', error);
+                    // Jika gagal memuat, jangan gunakan data lama dari cache
+                    dataProdukPulsa = [];
+                }
+            }
+            namaPulsaInput.addEventListener('input', () => {
+                const query = namaPulsaInput.value.toLowerCase();
+                suggestionsContainer.innerHTML = '';
+                if (query.length === 0) {
+                    suggestionsContainer.classList.add('hidden');
+                    return;
+                }
+                const filteredData = dataProdukPulsa.filter(item => item.nama.toLowerCase().includes(query));
+                if (filteredData.length > 0) {
+                    filteredData.forEach(item => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.classList.add('p-2', 'hover:bg-gray-100', 'cursor-pointer');
+                        suggestionItem.textContent = item.nama;
+                        suggestionItem.dataset.item = JSON.stringify(item);
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+                    suggestionsContainer.classList.remove('hidden');
+                } else {
+                    suggestionsContainer.classList.add('hidden');
+                }
+            });
+            suggestionsContainer.addEventListener('click', (e) => {
+                if (e.target && e.target.dataset.item) {
+                    const selectedItem = JSON.parse(e.target.dataset.item);
+                    namaPulsaInput.value = selectedItem.nama;
+                    modalInput.value = selectedItem.modal.toLocaleString('id-ID');
+                    hargaInput.value = selectedItem.harga.toLocaleString('id-ID');
+                    suggestionsContainer.classList.add('hidden');
+                }
+            });
+            document.addEventListener('click', (e) => {
+                if (!namaPulsaInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    suggestionsContainer.classList.add('hidden');
+                }
+            });
+
+            setInitialDateTime();
+            loadDataFromSheet();
+            loadProdukPulsa();
+        });
+    </script>
+</body>
+</html>

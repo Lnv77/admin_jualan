@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keuangan</title>
+    <!-- Memuat Tailwind CSS dari CDN dengan plugin Forms -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        /* Menambahkan font yang lebih baik untuk tampilan */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header Konten -->
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <!-- Sisi Kiri Header -->
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 id="header-title" class="text-xl font-semibold ml-3">Keuangan</h1>
+                </div>
+                <!-- Sisi Kanan Header -->
+                <div>
+                    <button id="topup-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Top Up
+                    </button>
+                </div>
+            </header>
+
+            <!-- Area Konten -->
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <!-- Grid untuk menampilkan saldo -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Card Saldo Cash -->
+                        <a href="cash.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-green-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo Cash</h3>
+                            </div>
+                            <p id="saldo-cash" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Saldo Agen Pulsa -->
+                        <a href="agenp.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-blue-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo Agen Pulsa</h3>
+                            </div>
+                            <p id="saldo-agen-pulsa" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Saldo DANA -->
+                        <a href="dana.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-sky-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo DANA</h3>
+                            </div>
+                            <p id="saldo-dana" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Saldo GoPay -->
+                        <a href="gopay.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-cyan-600 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo GoPay</h3>
+                            </div>
+                            <p id="saldo-gopay" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Saldo ShopeePay -->
+                        <a href="shopeepay.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-orange-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo ShopeePay</h3>
+                            </div>
+                            <p id="saldo-shopeepay" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Saldo Hutang (Piutang) -->
+                        <a href="hutang.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-red-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Saldo Hutang (Piutang)</h3>
+                            </div>
+                            <p id="saldo-hutang" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                        <!-- Card Total Pengeluaran -->
+                        <a href="pengeluaran.html" class="bg-white p-6 rounded-lg shadow-md flex flex-col hover:shadow-xl transition-shadow duration-200">
+                            <div class="flex items-center">
+                                <div class="bg-yellow-500 p-3 rounded-full">
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-700 ml-4">Total Pengeluaran</h3>
+                            </div>
+                            <p id="total-pengeluaran" class="text-3xl font-bold text-gray-900 mt-4">Rp 0</p>
+                        </a>
+
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <!-- Modal Top Up -->
+    <div id="topup-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Form Top Up Saldo</h3>
+            <form id="form-topup">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="tanggal_topup" class="block text-sm font-medium text-gray-700">Tanggal & Waktu</label>
+                        <input type="datetime-local" id="tanggal_topup" name="tanggal_topup" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="sumber_modal_topup" class="block text-sm font-medium text-gray-700">Sumber Modal</label>
+                        <select id="sumber_modal_topup" name="sumber_modal_topup" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option>Cash</option>
+                            <option>DANA</option>
+                            <option>GoPay</option>
+                            <option>ShopeePay</option>
+                            <option>Agen Pulsa</option>
+                            <option>Eksternal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tujuan_saldo_topup" class="block text-sm font-medium text-gray-700">Tujuan Saldo</label>
+                        <select id="tujuan_saldo_topup" name="tujuan_saldo_topup" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option>Cash</option>
+                            <option>Agen Pulsa</option>
+                            <option>DANA</option>
+                            <option>GoPay</option>
+                            <option>ShopeePay</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="modal_topup" class="block text-sm font-medium text-gray-700">Modal Top Up (Rp)</label>
+                        <input type="text" inputmode="numeric" id="modal_topup" name="modal_topup" placeholder="50.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="biaya_admin_topup" class="block text-sm font-medium text-gray-700">Biaya Admin (Rp)</label>
+                        <input type="text" inputmode="numeric" id="biaya_admin_topup" name="biaya_admin_topup" placeholder="1.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="keterangan_topup" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                        <textarea id="keterangan_topup" name="keterangan_topup" rows="2" placeholder="Top up GoPay dari Cash" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="topup-cancel-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Batal</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Simpan Top Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // !! PENTING: Ganti dengan URL Web App dari Google Apps Script Anda !!
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const topupBtn = document.getElementById('topup-btn');
+            const topupModal = document.getElementById('topup-modal');
+            const topupCancelBtn = document.getElementById('topup-cancel-btn');
+            const formTopup = document.getElementById('form-topup');
+
+            // Helper untuk mengirim data ke Google Script
+            async function sendDataToSheet(action, payload, sheetName) {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action, payload, sheetName }) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            }
+
+
+            // Event listeners untuk modal Top Up
+            topupBtn.addEventListener('click', () => {
+                const tanggalInput = document.getElementById('tanggal_topup');
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                tanggalInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                topupModal.classList.remove('hidden');
+            });
+
+            topupCancelBtn.addEventListener('click', () => {
+                topupModal.classList.add('hidden');
+            });
+
+            // Helper untuk format Rupiah pada input
+            const formatRupiahInput = (e) => {
+                const input = e.target;
+                let numericValue = input.value.replace(/\D/g, '');
+                if (!numericValue) {
+                    input.value = '';
+                    return;
+                }
+                input.value = new Intl.NumberFormat('id-ID').format(numericValue);
+            };
+
+            document.getElementById('modal_topup').addEventListener('input', formatRupiahInput);
+            document.getElementById('biaya_admin_topup').addEventListener('input', formatRupiahInput);
+
+            formTopup.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = formTopup.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+
+                const payload = {
+                    id: `topup-${Date.now()}`,
+                    tanggal: document.getElementById('tanggal_topup').value,
+                    sumber_modal: document.getElementById('sumber_modal_topup').value,
+                    tujuan_saldo: document.getElementById('tujuan_saldo_topup').value,
+                    modal: parseRupiah(document.getElementById('modal_topup').value),
+                    biaya_admin: parseRupiah(document.getElementById('biaya_admin_topup').value),
+                    keterangan: document.getElementById('keterangan_topup').value,
+                };
+
+                try {
+                    const result = await sendDataToSheet('create', payload, 'topup');
+                    if (result.status === 'success') {
+                        loadInitialData(); // Muat ulang semua data untuk mendapatkan saldo terbaru
+                        formTopup.reset();
+                        topupModal.classList.add('hidden');
+                        alert('Top up berhasil disimpan.');
+                    } else { throw new Error(result.message); }
+                } catch (error) {
+                    alert('Gagal menyimpan data top up: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Top Up';
+                }
+            });
+
+            // Fungsi helper untuk format Rupiah
+            const formatToRupiahDisplay = (number) => {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+            };
+            const parseRupiah = (value) => parseInt(String(value).replace(/\D/g, ''), 10) || 0;
+
+            // 4. Fungsi untuk menghitung dan menampilkan saldo
+            function calculateAndDisplayBalances(transaksiPulsa = [], pelangganAkrab = [], dataTopup = [], dataPengeluaran = [], dataWifi = []) {
+                // Inisialisasi saldo
+                const balances = {
+                    cash: 0, agenPulsa: 0, dana: 0, gopay: 0, shopeepay: 0, hutang: 0
+                };
+
+                // Data sekarang diterima sebagai argumen, tidak lagi dari localStorage
+
+                // Proses transaksi pulsa
+                transaksiPulsa.forEach(tx => {
+                    // Kurangi saldo dari sumber modal
+                        const modal = tx.modal || 0;
+                    switch (tx.sumber_modal) {
+                            case 'Cash': balances.cash -= modal; break;
+                            case 'Agen Pulsa': balances.agenPulsa -= modal; break;
+                            case 'DANA': balances.dana -= modal; break;
+                            case 'GoPay': balances.gopay -= modal; break;
+                            case 'ShopeePay': balances.shopeepay -= modal; break;
+                    }
+
+                    // Tambah saldo ke tujuan pembayaran (kecuali hutang)
+                        const harga = tx.harga || 0;
+                    switch (tx.pembayaran) {
+                            case 'Cash': balances.cash += harga; break;
+                            case 'Agen Pulsa': balances.agenPulsa += harga; break;
+                            case 'DANA': balances.dana += harga; break;
+                            case 'GoPay': balances.gopay += harga; break;
+                            case 'ShopeePay': balances.shopeepay += harga; break;
+                            case 'Hutang': balances.hutang += harga; break;
+                    }
+                });
+
+                // Proses transaksi paket akrab
+                pelangganAkrab.forEach(p => {
+                    // Kurangi saldo dari sumber modal
+                        const modal = p.modal || 0;
+                    switch (p.sumberModal) { // Pengeluaran
+                            case 'Cash': balances.cash -= modal; break;
+                            case 'Agen Pulsa': balances.agenPulsa -= modal; break;
+                            case 'DANA': balances.dana -= modal; break;
+                            case 'GoPay': balances.gopay -= modal; break;
+                            case 'ShopeePay': balances.shopeepay -= modal; break;
+                    }
+
+                    // Tambah saldo ke tujuan pembayaran (kecuali hutang)
+                        const harga = p.harga || 0;
+                    switch (p.metodePembayaran) {
+                            case 'Cash': balances.cash += harga; break;
+                            case 'Agen Pulsa': balances.agenPulsa += harga; break;
+                            case 'DANA': balances.dana += harga; break;
+                            case 'GoPay': balances.gopay += harga; break;
+                            case 'ShopeePay': balances.shopeepay += harga; break;
+                            case 'Hutang': balances.hutang += harga; break;
+                    }
+                });
+
+                // Proses data top up
+                dataTopup.forEach(topup => {
+                    const modal = topup.modal || 0;
+                    const biayaAdmin = topup.biaya_admin || 0;
+                    const totalPengeluaran = modal + biayaAdmin;
+
+                    // Tambah saldo ke tujuan
+                    switch (topup.tujuan_saldo) {
+                        case 'Cash': balances.cash += modal; break;
+                        case 'Agen Pulsa': balances.agenPulsa += modal; break;
+                        case 'DANA': balances.dana += modal; break;
+                        case 'GoPay': balances.gopay += modal; break;
+                        case 'ShopeePay': balances.shopeepay += modal; break;
+                        case 'Hutang': balances.hutang -= modal; break; // Pembayaran hutang mengurangi piutang
+                    }
+
+                    // Kurangi saldo dari sumber (jika bukan eksternal)
+                    switch (topup.sumber_modal) {
+                        case 'Cash': balances.cash -= totalPengeluaran; break;
+                        case 'Agen Pulsa': balances.agenPulsa -= totalPengeluaran; break;
+                        case 'DANA': balances.dana -= totalPengeluaran; break;
+                        case 'GoPay': balances.gopay -= totalPengeluaran; break;
+                        case 'ShopeePay': balances.shopeepay -= totalPengeluaran; break;
+                        // case 'Eksternal': tidak mengurangi saldo internal
+                    }
+                });
+
+                // Proses data pengeluaran
+                let totalPengeluaran = 0;
+                dataPengeluaran.forEach(expense => {
+                    const jumlah = expense.jumlah || 0;
+                    totalPengeluaran += jumlah;
+                    switch (expense.sumber_dana) {
+                        case 'Cash': balances.cash -= jumlah; break;
+                        case 'Agen Pulsa': balances.agenPulsa -= jumlah; break;
+                        case 'DANA': balances.dana -= jumlah; break;
+                        case 'GoPay': balances.gopay -= jumlah; break;
+                        case 'ShopeePay': balances.shopeepay -= jumlah; break;
+                    }
+                });
+
+                // Proses data pelanggan WiFi (BARU)
+                dataWifi.forEach(wifi => {
+                    // Tambah saldo dari pembayaran pelanggan
+                    const totalPembayaran = wifi.pembayaran_awal || 0;
+                    switch (wifi.metode_pembayaran) {
+                        case 'Cash': balances.cash += totalPembayaran; break;
+                        case 'DANA': balances.dana += totalPembayaran; break;
+                        case 'GoPay': balances.gopay += totalPembayaran; break;
+                        case 'ShopeePay': balances.shopeepay += totalPembayaran; break;
+                        // Asumsikan pembayaran wifi tidak bisa hutang
+                    }
+
+                    // Kurangi saldo dari pembelian kuota (modal)
+                    (wifi.kuota || []).forEach(pembelian => {
+                        const modal = pembelian.amount || 0;
+                        switch (pembelian.sumber_modal) {
+                            case 'Agen Pulsa': balances.agenPulsa -= modal; break;
+                            case 'DANA': balances.dana -= modal; break;
+                            case 'GoPay': balances.gopay -= modal; break;
+                            case 'ShopeePay': balances.shopeepay -= modal; break;
+                            case 'Cash': balances.cash -= modal; break;
+                        }
+                    });
+                });
+
+                // Tampilkan saldo ke elemen HTML
+                document.getElementById('saldo-cash').textContent = formatToRupiahDisplay(balances.cash);
+                document.getElementById('saldo-agen-pulsa').textContent = formatToRupiahDisplay(balances.agenPulsa);
+                document.getElementById('saldo-dana').textContent = formatToRupiahDisplay(balances.dana);
+                document.getElementById('saldo-gopay').textContent = formatToRupiahDisplay(balances.gopay);
+                document.getElementById('saldo-shopeepay').textContent = formatToRupiahDisplay(balances.shopeepay);
+                document.getElementById('saldo-hutang').textContent = formatToRupiahDisplay(balances.hutang);
+                document.getElementById('total-pengeluaran').textContent = formatToRupiahDisplay(totalPengeluaran);
+            }
+
+            // 5. Muat data awal
+            async function loadInitialData() {
+                // Tampilkan status memuat di semua kartu saldo
+                const balanceElements = {
+                    'saldo-cash': document.getElementById('saldo-cash'),
+                    'saldo-agen-pulsa': document.getElementById('saldo-agen-pulsa'),
+                    'saldo-dana': document.getElementById('saldo-dana'),
+                    'saldo-gopay': document.getElementById('saldo-gopay'),
+                    'saldo-shopeepay': document.getElementById('saldo-shopeepay'),
+                    'saldo-hutang': document.getElementById('saldo-hutang'),
+                    'total-pengeluaran': document.getElementById('total-pengeluaran')
+                };
+                Object.values(balanceElements).forEach(el => {
+                    if (el) {
+                        el.textContent = 'Memuat...';
+                    }
+                });
+
+                try {
+                    // Selalu ambil data terbaru dari Google Sheets secara paralel
+                    const [resultPulsa, resultAkrab, resultTopup, resultPengeluaran, resultWifi] = await Promise.all([
+                        sendDataToSheet('read', {}, 'pulsa'),
+                        sendDataToSheet('read', {}, 'paket_akrab'),
+                        sendDataToSheet('read', {}, 'topup'),
+                        sendDataToSheet('read', {}, 'pengeluaran'),
+                        sendDataToSheet('read', {}, 'wifi_pelanggan') // Tambahkan fetch data wifi
+                    ]);
+
+                    // Proses data pulsa
+                    const transaksiPulsa = (resultPulsa.status === 'success' && Array.isArray(resultPulsa.data))
+                        ? resultPulsa.data.map(tx => ({
+                            id: tx.id || tx.ID,
+                            tanggal: tx.tanggal || tx.Tanggal,
+                            nomor: tx.nomor || tx.Nomor || tx['No. HP'] || tx.no_hp,
+                            nama_pulsa: tx.nama_pulsa || tx['Nama Pulsa'] || tx.Produk,
+                            modal: tx.modal || tx.Modal || 0,
+                            harga: tx.harga || tx.Harga || tx['Harga Jual'] || 0,
+                            sumber_modal: tx.sumber_modal || tx['Sumber Modal'], pembayaran: tx.pembayaran || tx.Pembayaran
+                        }))
+                        : [];
+
+                    // Proses data paket akrab
+                    const pelangganAkrab = (resultAkrab.status === 'success' && Array.isArray(resultAkrab.data))
+                        ? resultAkrab.data.map(item => ({
+                            id: item.id, tanggalTambah: item.tanggal_ditambahkan, nama: item.nama, noHp: item.nomor,
+                            masaAktif: item['masa aktif'],
+                            modal: item.modal || item.Modal || 0,
+                            harga: item.harga || item.Harga || 0,
+                            metodePembayaran: item.metode_pembayaran, sumberModal: item['sumber modal'], akunPengelola: item.link_akun, noEwalletPengelola: item.no_wallet
+                        }))
+                        : [];
+
+                    // Proses data topup
+                    const dataTopup = (resultTopup.status === 'success' && Array.isArray(resultTopup.data))
+                        ? resultTopup.data.map(item => ({
+                            id: item.id, tanggal: item.tanggal, sumber_modal: item.sumber_modal,
+                            tujuan_saldo: item.tujuan_saldo,
+                            modal: item.modal || 0,
+                            biaya_admin: item.biaya_admin || 0,
+                            keterangan: item.keterangan,
+                        }))
+                        : [];
+
+                    // Proses data pengeluaran
+                    const dataPengeluaran = (resultPengeluaran.status === 'success' && Array.isArray(resultPengeluaran.data))
+                        ? resultPengeluaran.data
+                        : [];
+
+                    // Proses data WiFi (BARU)
+                    const dataWifi = (resultWifi.status === 'success' && Array.isArray(resultWifi.data))
+                        ? resultWifi.data.map(item => {
+                            let kuotaParsed = [];
+                            try {
+                                // Parse string JSON dari kolom 'kuota'
+                                if (item.kuota && typeof item.kuota === 'string') {
+                                    kuotaParsed = JSON.parse(item.kuota);
+                                }
+                            } catch (e) { console.error(`Gagal parse JSON kuota untuk pelanggan WiFi ${item.id}:`, item.kuota); }
+                            // Kembalikan objek dengan kuota yang sudah di-parse
+                            return { ...item, kuota: kuotaParsed };
+                        })
+                        : [];
+
+                    // Setelah semua data dimuat, hitung dan tampilkan saldo
+                    calculateAndDisplayBalances(transaksiPulsa, pelangganAkrab, dataTopup, dataPengeluaran, dataWifi);
+
+                } catch (error) {
+                    console.error('Gagal memuat data awal:', error);
+                    alert('Gagal memuat data dari server. Saldo yang ditampilkan mungkin tidak akurat. Coba muat ulang halaman.');
+                    Object.values(balanceElements).forEach(el => {
+                        if (el) {
+                            el.textContent = 'Error';
+                        }
+                    });
+                }
+            }
+
+            // Panggil fungsi inisialisasi
+            loadInitialData();
+        });
+    </script>
+
+</body>
+</html>

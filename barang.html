@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Produk Pulsa</title>
+    <!-- Memuat Tailwind CSS dari CDN dengan plugin Forms -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        /* Menambahkan font yang lebih baik untuk tampilan */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header Konten -->
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 id="header-title" class="text-xl font-semibold ml-3">Data Produk Pulsa</h1>
+                </div>
+                <div></div>
+            </header>
+
+            <!-- Area Konten -->
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <!-- Konten Form Produk Pulsa -->
+                    <div id="content-produk-pulsa">
+                        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl mx-auto">
+                            <form id="form-barang">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="md:col-span-2">
+                                        <label for="nama_barang" class="block text-sm font-medium text-gray-700">Nama Produk Pulsa</label>
+                                        <input type="text" id="nama_barang" name="nama_barang" placeholder="Contoh: Telkomsel 10.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label for="modal_barang" class="block text-sm font-medium text-gray-700">Modal (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="modal_barang" name="modal_barang" placeholder="10.500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label for="harga_barang" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)</label>
+                                        <input type="text" inputmode="numeric" id="harga_barang" name="harga_barang" placeholder="12.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                </div>
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Simpan Produk
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel Produk Pulsa -->
+                <div class="container mx-auto mt-8">
+                    <div id="produk-list-container" class="bg-white p-4 md:p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto">
+                        <h2 class="text-xl font-semibold mb-4">Daftar Produk Pulsa</h2>
+                        <!-- Tampilan Tabel Desktop -->
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modal</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Jual</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body-barang" class="bg-white divide-y divide-gray-200">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="card-body-barang" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+                            <!-- Kartu data akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Produk Pulsa</h3>
+            <form id="form-edit-barang">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="edit-nama_barang" class="block text-sm font-medium text-gray-700">Nama Produk Pulsa</label>
+                        <input type="text" id="edit-nama_barang" name="nama_barang" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="edit-modal_barang" class="block text-sm font-medium text-gray-700">Modal (Rp)</label>
+                        <input type="text" inputmode="numeric" id="edit-modal_barang" name="modal_barang" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="edit-harga_barang" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)</label>
+                        <input type="text" inputmode="numeric" id="edit-harga_barang" name="harga_barang" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="edit-cancel-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Batal</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Selektor Elemen
+            const modalBarangInput = document.getElementById('modal_barang');
+            const hargaBarangInput = document.getElementById('harga_barang');
+            const formBarang = document.getElementById('form-barang');
+            const tableBodyBarang = document.getElementById('table-body-barang');
+            const cardBodyBarang = document.getElementById('card-body-barang');
+
+            // Elemen Modal Edit
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('form-edit-barang');
+            const editCancelBtn = document.getElementById('edit-cancel-btn');
+
+            // !! PENTING: Ganti dengan URL Web App dari Google Apps Script Anda !!
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+            let allProduk = []; // Variabel global untuk menyimpan data dari server
+
+            // Helper untuk mengirim data ke Google Script
+            async function sendDataToSheet(action, payload) {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify({ action, payload, sheetName: 'produk_pulsa' }) // Menentukan nama sheet
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            }
+
+            // 4. Fungsi untuk format input angka ke format Rupiah
+            function formatRupiah(e) {
+                const input = e.target;
+                let numericValue = input.value.replace(/\D/g, '');
+                if (!numericValue) {
+                    input.value = '';
+                    return;
+                }
+                input.value = new Intl.NumberFormat('id-ID').format(numericValue);
+            }
+
+            modalBarangInput.addEventListener('input', formatRupiah);
+            hargaBarangInput.addEventListener('input', formatRupiah);
+
+            // 5. Fungsi untuk menangani submit form
+            formBarang.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitButton = formBarang.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+
+                const parseRupiah = (value) => parseInt(value.replace(/\D/g, ''), 10) || 0;
+
+                const gsheetData = {
+                    id: 'PULSA' + Math.floor(1000 + Math.random() * 9000), // Membuat ID unik sederhana
+                    nama: document.getElementById('nama_barang').value,
+                    modal: parseRupiah(modalBarangInput.value),
+                    harga: parseRupiah(hargaBarangInput.value),
+                };
+
+                try {
+                    const result = await sendDataToSheet('create', gsheetData);
+                    if (result.status === 'success') {
+                        alert(result.message);
+                        formBarang.reset();
+                        loadDataFromSheet(); // Muat ulang data dari server
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Gagal menyimpan data ke Google Sheets. Error: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Produk';
+                }
+            });
+
+            // 6. Fungsi untuk merender data ke tabel
+            function renderTabelBarang(data) {
+                tableBodyBarang.innerHTML = '';
+                cardBodyBarang.innerHTML = '';
+
+                if (data.length === 0) {
+                    const message = 'Belum ada produk pulsa.';
+                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">${message}</td></tr>`;
+                    cardBodyBarang.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${item.nama}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${item.modal.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${item.harga.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-edit-btn" data-id="${item.id}">Edit</button>
+                            <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-delete-btn" data-id="${item.id}">Hapus</button>
+                        </td>
+                    `;
+                    tableBodyBarang.appendChild(row);
+
+                    // Render untuk Card Mobile
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-3';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-gray-800">${item.nama}</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 font-medium px-2 py-0.5 rounded">ID: ${item.id}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <p><strong>Modal:</strong> Rp ${item.modal.toLocaleString('id-ID')}</p>
+                            <p><strong>Harga Jual:</strong> Rp ${item.harga.toLocaleString('id-ID')}</p>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex justify-end items-center">
+                            <div class="flex space-x-2">
+                                <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-delete-btn" data-id="${item.id}">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    cardBodyBarang.appendChild(card);
+                });
+            }
+            
+            // 7. Fungsi untuk menangani aksi di tabel (Edit & Hapus)
+            document.getElementById('produk-list-container').addEventListener('click', async function(e) {
+                const targetButton = e.target;
+                
+                // Gunakan event delegation, pastikan yang diklik adalah tombol aksi
+                if (!targetButton.matches('.js-edit-btn, .js-delete-btn') || !targetButton.dataset.id) {
+                    return;
+                }
+
+                const id = targetButton.dataset.id;
+
+                // Aksi Edit
+                if (targetButton.classList.contains('js-edit-btn')) {
+                    const itemToEdit = allProduk.find(item => item.id == id);
+                    if (itemToEdit) { // Gunakan == karena ID dari sheet bisa jadi string atau number
+                        document.getElementById('edit-id').value = itemToEdit.id;
+                        document.getElementById('edit-nama_barang').value = itemToEdit.nama;
+                        document.getElementById('edit-modal_barang').value = itemToEdit.modal.toLocaleString('id-ID');
+                        document.getElementById('edit-harga_barang').value = itemToEdit.harga.toLocaleString('id-ID');
+                        editModal.classList.remove('hidden');
+                    }
+                }
+
+                // Aksi Hapus
+                if (targetButton.classList.contains('js-delete-btn')) {
+                    if (confirm(`Apakah Anda yakin ingin menghapus produk dengan ID ${id}?`)) {
+                        try {
+                            targetButton.textContent = 'Menghapus...';
+                            targetButton.disabled = true;
+                            const result = await sendDataToSheet('delete', { id });
+
+                            if (result.status === 'success') {
+                                alert(result.message);
+                                loadDataFromSheet(); // Muat ulang data dari server
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        } catch (error) {
+                            alert('Gagal menghapus data: ' + error.message);
+                            targetButton.textContent = 'Hapus';
+                            targetButton.disabled = false;
+                        }
+                    }
+                }
+            });
+
+            // 8. Event listener untuk modal edit
+            editCancelBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+            document.getElementById('edit-modal_barang').addEventListener('input', formatRupiah);
+            document.getElementById('edit-harga_barang').addEventListener('input', formatRupiah);
+
+            editForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitButton = editForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+
+                const parseRupiah = (value) => parseInt(value.replace(/\D/g, ''), 10) || 0;
+
+                const updatedData = {
+                    id: document.getElementById('edit-id').value,
+                    nama: document.getElementById('edit-nama_barang').value,
+                    modal: parseRupiah(document.getElementById('edit-modal_barang').value),
+                    harga: parseRupiah(document.getElementById('edit-harga_barang').value),
+                };
+
+                try {
+                    const result = await sendDataToSheet('update', updatedData);
+                    if (result.status === 'success') {
+                        alert(result.message);
+                        editModal.classList.add('hidden');
+                        loadDataFromSheet(); // Muat ulang data dari server
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    alert('Gagal memperbarui data: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Perubahan';
+                }
+            });
+
+            // 9. Fungsi untuk memuat data dari Google Sheet saat halaman dibuka
+            async function loadDataFromSheet() {
+                const loadingMessage = `Memuat data...`;
+                tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4">${loadingMessage}</td></tr>`;
+                cardBodyBarang.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${loadingMessage}</div>`;
+
+                try {
+                    const result = await sendDataToSheet('read', {});
+                    const rawData = result.data || result;
+                    if (Array.isArray(rawData)) {
+                        // Normalisasi data: Ubah kunci agar konsisten
+                        allProduk = rawData.map(item => ({
+                            id: item.id,
+                            nama: item.nama,
+                            modal: item.modal || item.Modal || 0,
+                            harga: item.harga || item.Harga || 0
+                        }));
+                        renderTabelBarang(allProduk);
+                    } else {
+                        throw new Error("Format data tidak valid dari server.");
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat data dari Sheet:', error);
+                    const errorMessage = `Gagal memuat data. Coba muat ulang.`;
+                    tableBodyBarang.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">${errorMessage}</td></tr>`;
+                    cardBodyBarang.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">${errorMessage}</div>`;
+                    allProduk = [];
+                }
+            }
+
+            // Muat data dari sheet saat halaman pertama kali dibuka
+            loadDataFromSheet();
+        });
+    </script>
+
+</body>
+</html>

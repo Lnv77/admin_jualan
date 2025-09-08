@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Pelanggan WiFi</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        fieldset {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        legend {
+            font-weight: bold;
+            color: #333;
+            padding: 0 10px;
+        }
+        #daftar-pembelian {
+            list-style-type: none;
+            padding: 0;
+        }
+        #daftar-pembelian li {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-left: 5px solid #007bff;
+            border-radius: 4px;
+        }
+        .summary p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+        .summary span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Formulir Input Pelanggan WiFi</h1>
+
+    <form id="form-pelanggan">
+        <fieldset>
+            <legend>Data Pelanggan</legend>
+            <div class="form-group">
+                <label for="nama-pelanggan">Nama Pelanggan</label>
+                <input type="text" id="nama-pelanggan" required>
+            </div>
+            <div class="form-group">
+                <label for="masa-aktif">Masa Aktif (Contoh: 1 Bulan, 30 Hari)</label>
+                <input type="text" id="masa-aktif" required>
+            </div>
+            <div class="form-group">
+                <label for="biaya-pemasangan">Biaya Pembayaran Pemasangan (Rp)</label>
+                <input type="number" id="biaya-pemasangan" placeholder="Contoh: 300000" required>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Input Modal Pembelian Kuota</legend>
+            <p>Pembelian kuota akan dipotong dari uang pembayaran pemasangan.</p>
+            <div class="form-group">
+                <label for="pembelian-kuota">Jumlah Pembelian (Rp)</label>
+                <input type="number" id="pembelian-kuota" placeholder="Contoh: 50000">
+            </div>
+            <button type="button" id="btn-tambah-kuota">Tambah Pembelian</button>
+            
+            <h3 style="margin-top: 20px;">Daftar Pembelian Kuota</h3>
+            <ul id="daftar-pembelian">
+                <!-- Daftar pembelian akan muncul di sini -->
+            </ul>
+        </fieldset>
+    </form>
+
+    <div class="summary">
+        <h2>Ringkasan Keuangan</h2>
+        <p>Total Pembelian Kuota: Rp <span id="total-pembelian">0</span></p>
+        <p>Sisa Saldo dari Biaya Pemasangan: Rp <span id="sisa-saldo">0</span></p>
+    </div>
+</div>
+
+<script>
+    const biayaPemasanganEl = document.getElementById('biaya-pemasangan');
+    const pembelianKuotaEl = document.getElementById('pembelian-kuota');
+    const btnTambahKuota = document.getElementById('btn-tambah-kuota');
+    const daftarPembelianEl = document.getElementById('daftar-pembelian');
+    const totalPembelianEl = document.getElementById('total-pembelian');
+    const sisaSaldoEl = document.getElementById('sisa-saldo');
+
+    let daftarPembelian = [];
+
+    function formatRupiah(angka) {
+        return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function updateRingkasan() {
+        const biayaPemasangan = parseFloat(biayaPemasanganEl.value) || 0;
+        const totalPembelian = daftarPembelian.reduce((sum, item) => sum + item, 0);
+        const sisaSaldo = biayaPemasangan - totalPembelian;
+
+        totalPembelianEl.textContent = formatRupiah(totalPembelian);
+        sisaSaldoEl.textContent = formatRupiah(sisaSaldo);
+    }
+
+    btnTambahKuota.addEventListener('click', () => {
+        const jumlahPembelian = parseFloat(pembelianKuotaEl.value);
+        if (jumlahPembelian && jumlahPembelian > 0) {
+            daftarPembelian.push(jumlahPembelian);
+            
+            const li = document.createElement('li');
+            li.textContent = `Pembelian: Rp ${formatRupiah(jumlahPembelian)}`;
+            daftarPembelianEl.appendChild(li);
+            
+            pembelianKuotaEl.value = '';
+            updateRingkasan();
+        } else {
+            alert('Masukkan jumlah pembelian yang valid.');
+        }
+    });
+
+    biayaPemasanganEl.addEventListener('input', updateRingkasan);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Pengeluaran</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h1 class="text-xl font-semibold ml-3">Manajemen Pengeluaran</h1>
+                </div>
+            </header>
+
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <!-- Form Input -->
+                <div class="container mx-auto">
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+                        <h2 class="text-xl font-semibold mb-6">Tambah Pengeluaran Baru</h2>
+                        <form id="form-pengeluaran">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="tanggal_pengeluaran" class="block text-sm font-medium text-gray-700">Tanggal & Waktu</label>
+                                    <input type="datetime-local" id="tanggal_pengeluaran" name="tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                </div>
+                                <div>
+                                    <label for="kategori_pengeluaran" class="block text-sm font-medium text-gray-700">Kategori</label>
+                                    <select id="kategori_pengeluaran" name="kategori" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                        <option>Belanja Stok</option>
+                                        <option>Listrik</option>
+                                        <option>Internet</option>
+                                        <option>Transportasi</option>
+                                        <option>Makan</option>
+                                        <option>Lainnya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="jumlah_pengeluaran" class="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
+                                    <input type="text" inputmode="numeric" id="jumlah_pengeluaran" name="jumlah" placeholder="50.000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                </div>
+                                <div>
+                                    <label for="sumber_dana_pengeluaran" class="block text-sm font-medium text-gray-700">Sumber Dana</label>
+                                    <select id="sumber_dana_pengeluaran" name="sumber_dana" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                        <option>Cash</option>
+                                        <option>DANA</option>
+                                        <option>GoPay</option>
+                                        <option>ShopeePay</option>
+                                        <option>Agen Pulsa</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="keterangan_pengeluaran" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                                    <textarea id="keterangan_pengeluaran" name="keterangan" rows="2" placeholder="Beli token listrik, bayar tagihan WiFi, dll." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required></textarea>
+                                </div>
+                            </div>
+                            <div class="mt-8 flex justify-end">
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Simpan Pengeluaran
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tabel Data -->
+                <div class="container mx-auto mt-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto">
+                        <h2 class="text-xl font-semibold mb-4">Data Pengeluaran</h2>
+                        <div class="mb-4">
+                            <input type="text" id="search-pengeluaran" placeholder="Cari berdasarkan keterangan atau kategori..." class="block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <!-- Tampilan Tabel Desktop -->
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sumber Dana</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body-pengeluaran" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="card-body-pengeluaran" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Pengeluaran</h3>
+            <form id="form-edit-pengeluaran">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="edit-tanggal" class="block text-sm font-medium text-gray-700">Tanggal & Waktu</label>
+                        <input type="datetime-local" id="edit-tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="edit-kategori" class="block text-sm font-medium text-gray-700">Kategori</label>
+                        <select id="edit-kategori" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option>Belanja Stok</option>
+                            <option>Listrik</option>
+                            <option>Internet</option>
+                            <option>Transportasi</option>
+                            <option>Makan</option>
+                            <option>Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-jumlah" class="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
+                        <input type="text" inputmode="numeric" id="edit-jumlah" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="edit-sumber_dana" class="block text-sm font-medium text-gray-700">Sumber Dana</label>
+                        <select id="edit-sumber_dana" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option>Cash</option>
+                            <option>DANA</option>
+                            <option>GoPay</option>
+                            <option>ShopeePay</option>
+                            <option>Agen Pulsa</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                        <textarea id="edit-keterangan" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="edit-cancel-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Batal</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // =================================================================
+            // KODE DI BAWAH INI HANYA UNTUK LOGIKA SPESIFIK HALAMAN PENGELUARAN
+            // =================================================================
+            // --- KONFIGURASI ---
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+            const SHEET_NAME = 'pengeluaran';
+
+            // --- ELEMEN DOM ---
+            const formPengeluaran = document.getElementById('form-pengeluaran');
+            const tableBody = document.getElementById('table-body-pengeluaran');
+            const cardBody = document.getElementById('card-body-pengeluaran');
+            const searchInput = document.getElementById('search-pengeluaran');
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('form-edit-pengeluaran');
+            const editCancelBtn = document.getElementById('edit-cancel-btn');
+
+            let allPengeluaran = []; // Global state untuk menyimpan data
+
+            // --- FUNGSI HELPERS ---
+            const formatRupiah = (e) => {
+                const input = e.target;
+                let numericValue = input.value.replace(/\D/g, '');
+                input.value = numericValue ? new Intl.NumberFormat('id-ID').format(numericValue) : '';
+            };
+            const parseRupiah = (value) => parseInt(String(value).replace(/\D/g, ''), 10) || 0;
+            async function sendDataToSheet(action, payload) {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action, payload, sheetName: SHEET_NAME }) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            }
+
+            function setInitialDateTime(elementId) {
+                const tanggalInput = document.getElementById(elementId);
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                tanggalInput.value = now.toISOString().slice(0,16);
+            }
+
+            // --- RENDER DATA ---
+            function renderData(data, searchQuery = '') {
+                tableBody.innerHTML = '';
+                cardBody.innerHTML = '';
+
+                const lowerCaseQuery = searchQuery.toLowerCase().trim();
+                const filteredData = data.filter(item => {
+                    if (!lowerCaseQuery) return true;
+                    const keteranganMatch = item.keterangan && item.keterangan.toLowerCase().includes(lowerCaseQuery);
+                    const kategoriMatch = item.kategori && item.kategori.toLowerCase().includes(lowerCaseQuery);
+                    return keteranganMatch || kategoriMatch;
+                });
+
+                if (filteredData.length === 0) {
+                    const message = searchQuery ? `Tidak ada data cocok dengan "${searchQuery}".` : 'Belum ada data pengeluaran.';
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4">${message}</td></tr>`;
+                    cardBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
+                    return;
+                }
+
+                filteredData.forEach(item => {
+                    const tanggalFormatted = new Date(item.tanggal).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const jumlahFormatted = `Rp ${parseRupiah(item.jumlah).toLocaleString('id-ID')}`;
+
+                    // Render Tabel
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${tanggalFormatted}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${item.kategori}</td>
+                        <td class="px-4 py-4 text-sm text-gray-500">${item.keterangan}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${jumlahFormatted}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${item.sumber_dana}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-edit-btn" data-id="${item.id}">Edit</button>
+                            <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md ml-2 js-delete-btn" data-id="${item.id}">Delete</button>
+                        </td>`;
+
+                    // Render Card
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-2';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-gray-800">${item.keterangan}</span>
+                            <span class="text-xs bg-gray-100 text-gray-800 font-medium px-2 py-0.5 rounded">${item.kategori}</span>
+                        </div>
+                        <p class="text-sm text-gray-600">${tanggalFormatted}</p>
+                        <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
+                            <div>
+                                <span class="text-lg font-semibold text-red-600">${jumlahFormatted}</span>
+                                <p class="text-xs text-gray-500">dari ${item.sumber_dana}</p>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-edit-btn" data-id="${item.id}">Edit</button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-2 rounded-md js-delete-btn" data-id="${item.id}">Delete</button>
+                            </div>
+                        </div>`;
+                    cardBody.appendChild(card);
+                });
+            }
+
+            // --- AKSI CRUD ---
+            formPengeluaran.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = formPengeluaran.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+
+                const payload = {
+                    id: `exp-${Date.now()}`,
+                    tanggal: document.getElementById('tanggal_pengeluaran').value,
+                    kategori: document.getElementById('kategori_pengeluaran').value,
+                    jumlah: parseRupiah(document.getElementById('jumlah_pengeluaran').value),
+                    sumber_dana: document.getElementById('sumber_dana_pengeluaran').value,
+                    keterangan: document.getElementById('keterangan_pengeluaran').value,
+                };
+
+                try {
+                    const result = await sendDataToSheet('create', payload);
+                    if (result.status === 'success') {
+                        alert('Pengeluaran berhasil disimpan.');
+                        formPengeluaran.reset();
+                        setInitialDateTime('tanggal_pengeluaran');
+                        loadInitialData(); // Muat ulang data dari server
+                    } else { throw new Error(result.message); }
+                } catch (error) {
+                    alert('Gagal menyimpan data: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Pengeluaran';
+                }
+            });
+
+            async function handleActions(e) {
+                const target = e.target;
+                const id = target.dataset.id;
+                if (!id) return;
+
+                const item = allPengeluaran.find(p => p.id == id);
+                if (!item) return;
+
+                if (target.classList.contains('js-delete-btn')) {
+                    if (confirm(`Yakin ingin menghapus pengeluaran "${item.keterangan}"?`)) {
+                        target.disabled = true;
+                        try {
+                            const result = await sendDataToSheet('delete', { id });
+                            if (result.status === 'success') {
+                                alert('Data berhasil dihapus.');
+                                loadInitialData(); // Muat ulang data
+                            } else { throw new Error(result.message); }
+                        } catch (error) {
+                            alert('Gagal menghapus data: ' + error.message);
+                            target.disabled = false;
+                        }
+                    }
+                }
+
+                if (target.classList.contains('js-edit-btn')) {
+                    document.getElementById('edit-id').value = item.id;
+                    document.getElementById('edit-tanggal').value = item.tanggal;
+                    document.getElementById('edit-kategori').value = item.kategori;
+                    document.getElementById('edit-jumlah').value = parseRupiah(item.jumlah).toLocaleString('id-ID');
+                    document.getElementById('edit-sumber_dana').value = item.sumber_dana;
+                    document.getElementById('edit-keterangan').value = item.keterangan;
+                    editModal.classList.remove('hidden');
+                }
+            }
+
+
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = editForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Menyimpan...';
+
+                const payload = {
+                    id: document.getElementById('edit-id').value,
+                    tanggal: document.getElementById('edit-tanggal').value,
+                    kategori: document.getElementById('edit-kategori').value,
+                    jumlah: parseRupiah(document.getElementById('edit-jumlah').value),
+                    sumber_dana: document.getElementById('edit-sumber_dana').value,
+                    keterangan: document.getElementById('edit-keterangan').value,
+                };
+
+                try {
+                    const result = await sendDataToSheet('update', payload);
+                    if (result.status === 'success') {
+                        alert('Data berhasil diperbarui.');
+                        editModal.classList.add('hidden');
+                        loadInitialData(); // Muat ulang data
+                    } else { throw new Error(result.message); }
+                } catch (error) {
+                    alert('Gagal memperbarui data: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Simpan Perubahan';
+                }
+            });
+
+            searchInput.addEventListener('input', () => renderData(allPengeluaran, searchInput.value));
+
+            // --- MEMUAT DATA AWAL ---
+            async function loadInitialData() {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4">Memuat data dari server...</td></tr>`;
+                cardBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">Memuat data...</div>`;
+                try {
+                    const response = await sendDataToSheet('read', {});
+                    const rawData = response.data || response;
+
+                    allPengeluaran = Array.isArray(rawData) ? rawData : [];
+                    searchInput.value = '';
+                    renderData(allPengeluaran);
+                } catch (error) {
+                    console.error('Gagal memuat data awal:', error);
+                    const message = "Gagal memuat data. Coba muat ulang halaman.";
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">${message}</td></tr>`;
+                    cardBody.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">${message}</div>`;
+                    allPengeluaran = [];
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            document.getElementById('jumlah_pengeluaran').addEventListener('input', formatRupiah);
+            document.getElementById('edit-jumlah').addEventListener('input', formatRupiah);
+            tableBody.addEventListener('click', handleActions);
+            cardBody.addEventListener('click', handleActions);
+            editCancelBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+
+            // --- INISIALISASI HALAMAN ---
+            setInitialDateTime('tanggal_pengeluaran');
+            loadInitialData();
+        });
+    </script>
+</body>
+</html>

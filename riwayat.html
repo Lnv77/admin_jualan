@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Transaksi</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom scrollbar (optional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header Konten -->
+            <header class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white border-b gap-4">
+                <!-- Tombol Hamburger & Judul -->
+                <div class="flex items-center flex-shrink-0">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 class="text-xl font-semibold ml-3 md:ml-0">Riwayat Transaksi</h1>
+                </div>
+
+                <!-- Filter dan Tombol Refresh -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+                    <!-- Search and Mobile Filter Toggle -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <!-- Search Input with Icon -->
+                        <div class="relative flex-grow">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                            </span>
+                            <input type="text" id="search-riwayat" placeholder="Cari keterangan..." class="w-full sm:w-48 pl-10 pr-3 py-2 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        </div>
+                        <!-- Mobile Filter Toggle Button -->
+                        <button id="mobile-filter-toggle" class="sm:hidden bg-white hover:bg-gray-50 text-gray-600 p-2 rounded-md flex-shrink-0 flex items-center justify-center border border-gray-300 shadow-sm">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+
+                    <!-- Filter Dropdowns & Refresh Button -->
+                    <div id="filter-options" class="hidden sm:flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                        <select id="filter-waktu" class="w-full sm:w-auto rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="semua">Semua Waktu</option>
+                            <option value="hari">Hari Ini</option>
+                            <option value="minggu">Minggu Ini</option>
+                            <option value="bulan">Bulan Ini</option>
+                        </select>
+                        <select id="filter-jenis" class="w-full sm:w-auto rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="">Semua Jenis</option>
+                            <option value="Pulsa">Pulsa</option>
+                            <option value="Paket Akrab">Paket Akrab</option>
+                            <option value="WiFi">WiFi</option>
+                            <option value="Pengeluaran">Pengeluaran</option>
+                        </select>
+                        <button id="refresh-btn" class="bg-white hover:bg-gray-50 text-gray-600 p-2 rounded-md w-full sm:w-auto flex-shrink-0 flex items-center justify-center border border-gray-300 shadow-sm">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Area Konten -->
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Transaksi</h3>
+                            <p id="total-transactions" class="text-2xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Modal</h3>
+                            <p id="total-modal" class="text-2xl font-bold text-red-600">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Penjualan</h3>
+                            <p id="total-penjualan" class="text-2xl font-bold text-green-600">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Pengeluaran</h3>
+                            <p id="total-pengeluaran" class="text-2xl font-bold text-yellow-600">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Laba</h3>
+                            <p id="total-laba" class="text-2xl font-bold text-purple-600">Rp 0</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Transaksi -->
+                    <div class="bg-white p-8 rounded-lg shadow-md w-full mx-auto">
+                        <!-- Tampilan Tabel Desktop -->
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modal</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Jual</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Laba</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transaction-history-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Data transaksi akan dimuat di sini oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Tampilan Card Mobile -->
+                        <div id="transaction-cards-body" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+                            <!-- Kartu data akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const transactionTableBody = document.getElementById('transaction-history-body');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const filterJenis = document.getElementById('filter-jenis');
+            const filterWaktu = document.getElementById('filter-waktu');
+            const searchInput = document.getElementById('search-riwayat');
+            const transactionCardsBody = document.getElementById('transaction-cards-body');
+            const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+            const filterOptions = document.getElementById('filter-options');
+            
+            // Summary elements
+            const totalTransactionsEl = document.getElementById('total-transactions');
+            const totalModalEl = document.getElementById('total-modal');
+            const totalPenjualanEl = document.getElementById('total-penjualan');
+            const totalPengeluaranEl = document.getElementById('total-pengeluaran');
+            const totalLabaEl = document.getElementById('total-laba');
+            
+            // !! PENTING: Ganti dengan URL Web App dari Google Apps Script Anda !!
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+
+            let allTransactions = []; // Menyimpan semua transaksi untuk filtering
+
+
+            // Helper untuk mengirim data ke Google Script
+            async function sendDataToSheet(action, payload, sheetName) {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify({ action, payload, sheetName: sheetName })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            }
+
+            // Fungsi untuk menormalkan data pulsa dari Google Sheet
+            function normalizePulsaData(pulsaData) {
+                if (!Array.isArray(pulsaData)) return [];
+                
+                return pulsaData.map(tx => {
+                    // Pastikan modal dan harga adalah angka
+                    const modal = Number(tx.modal || tx.Modal || 0);
+                    const harga = Number(tx.harga || tx.Harga || tx['Harga Jual'] || 0);
+                    
+                    return {
+                        tanggal: tx.tanggal || tx.Tanggal,
+                        jenis: 'Pulsa',
+                        keterangan: `${tx.nama_pulsa || tx['Nama Pulsa'] || 'Unknown'} (${tx.nomor || tx.Nomor || tx['No. HP'] || 'No Number'})`,
+                        modal: modal,
+                        harga_jual: harga,
+                        laba: harga - modal
+                    };
+                }).filter(tx => tx.modal !== 0 || tx.harga_jual !== 0);
+            }
+
+            // Fungsi untuk mengambil data pulsa dari Google Sheet
+            async function fetchAndNormalizePulsa() {
+                try {
+                    const result = await sendDataToSheet('read', {}, 'pulsa');
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        return normalizePulsaData(result.data);
+                    }
+                } catch (error) {
+                    console.error('Gagal mengambil data Pulsa:', error);
+                }
+                return []; // Return empty array on failure
+            }
+
+            // Fungsi untuk mengambil dan menormalkan data Paket Akrab
+            async function fetchAndNormalizeAkrab() {
+                try {
+                    const result = await sendDataToSheet('read', {}, 'paket_akrab');
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        return result.data.map(p => ({
+                            tanggal: p.tanggal_ditambahkan || p.tanggalTambah,
+                            jenis: 'Paket Akrab',
+                            keterangan: `${p.nama} (${p.nomor || p.noHp})`,
+                            modal: Number(p.modal || 0),
+                            harga_jual: Number(p.harga || 0),
+                            laba: Number(p.harga || 0) - Number(p.modal || 0)
+                        })).filter(tx => tx.modal !== 0 || tx.harga_jual !== 0);
+                    }
+                } catch (error) {
+                    console.error('Gagal mengambil data Paket Akrab:', error);
+                }
+                return []; // Return empty array on failure
+            }
+
+            // Fungsi untuk mengambil dan menormalkan data Pengeluaran (jika diperlukan di masa depan)
+            async function fetchAndNormalizePengeluaran() {
+                try {
+                    const result = await sendDataToSheet('read', {}, 'pengeluaran');
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        return result.data.map(tx => ({
+                            tanggal: tx.tanggal,
+                            jenis: 'Pengeluaran',
+                            keterangan: tx.keterangan,
+                            modal: Number(tx.jumlah || 0),
+                            harga_jual: 0,
+                            laba: -Number(tx.jumlah || 0)
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Gagal mengambil data Pengeluaran:', error);
+                }
+                return [];
+            }
+
+            // Fungsi untuk mengambil dan menormalkan data WiFi
+            async function fetchAndNormalizeWifi() {
+                try {
+                    const result = await sendDataToSheet('read', {}, 'wifi_pelanggan');
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        const wifiTransactions = [];
+                        result.data.forEach(wifi => {
+                            // Pemasukan dari pembayaran pelanggan
+                            wifiTransactions.push({
+                                tanggal: wifi.tanggal_aktivasi,
+                                jenis: 'WiFi',
+                                keterangan: `Pembayaran dari ${wifi.nama}`,
+                                modal: 0,
+                                harga_jual: Number(wifi.pembayaran_awal) || 0,
+                                laba: Number(wifi.pembayaran_awal) || 0
+                            });
+
+                            // Pengeluaran dari pembelian kuota (modal)
+                            let kuotaList = [];
+                            try {
+                                if (wifi.kuota && typeof wifi.kuota === 'string') {
+                                    kuotaList = JSON.parse(wifi.kuota);
+                                }
+                            } catch (e) { /* abaikan error parsing */ }
+
+                            kuotaList.forEach(pembelian => {
+                                const modalKuota = Number(pembelian.amount) || 0;
+                                wifiTransactions.push({
+                                    tanggal: pembelian.tanggal,
+                                    jenis: 'WiFi',
+                                    keterangan: `Modal Kuota untuk ${wifi.nama} (${pembelian.deskripsi})`,
+                                    modal: modalKuota,
+                                    harga_jual: 0,
+                                    laba: -modalKuota
+                                });
+                            });
+                        });
+                        return wifiTransactions;
+                    }
+                } catch (error) {
+                    console.error('Gagal mengambil data WiFi:', error);
+                }
+                return [];
+            }
+
+            // Fungsi untuk menghitung dan menampilkan summary
+            function updateSummary(transactions) {
+                const totalTransactions = transactions.length;
+                const totalModal = transactions.reduce((sum, tx) => sum + (tx.modal || 0), 0);
+                const totalPenjualan = transactions.reduce((sum, tx) => sum + (tx.harga_jual || 0), 0);
+                const totalPengeluaran = transactions
+                    .filter(tx => tx.jenis === 'Pengeluaran')
+                    .reduce((sum, tx) => sum + (tx.modal || 0), 0);
+                const totalLaba = transactions.reduce((sum, tx) => sum + (tx.laba || 0), 0);
+                const formatCurrency = (number) => new Intl.NumberFormat('id-ID', { 
+                    style: 'currency', 
+                    currency: 'IDR', 
+                    minimumFractionDigits: 0 
+                }).format(number);
+
+                totalTransactionsEl.textContent = totalTransactions;
+                totalModalEl.textContent = formatCurrency(totalModal);
+                totalPenjualanEl.textContent = formatCurrency(totalPenjualan);
+                totalPengeluaranEl.textContent = formatCurrency(totalPengeluaran);
+                totalLabaEl.textContent = formatCurrency(totalLaba);
+            }
+
+            // Fungsi untuk merender baris tabel
+            function renderTransactions(transactions) {
+                if (!transactionTableBody || !transactionCardsBody) return;
+
+                transactionTableBody.innerHTML = '';
+                transactionCardsBody.innerHTML = '';
+                
+                if (transactions.length === 0) {
+                    const message = `Tidak ada data transaksi yang cocok.`;
+                    transactionTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">${message}</td></tr>`;
+                    transactionCardsBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">${message}</div>`;
+                    updateSummary([]);
+                    return;
+                }
+
+                transactions.forEach(tx => {
+
+                    const formatCurrency = (number) => new Intl.NumberFormat('id-ID', { 
+                        style: 'currency', 
+                        currency: 'IDR', 
+                        minimumFractionDigits: 0 
+                    }).format(number || 0);
+                    
+                    const formatDate = (dateString) => {
+                        try {
+                            return new Date(dateString).toLocaleString('id-ID', {
+                                year: 'numeric', month: 'short', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                        } catch {
+                            return dateString || 'Tanggal tidak valid';
+                        }
+                    };
+
+                    let jenisBadgeClass = 'bg-gray-100 text-gray-800'; // Default
+                    if (tx.jenis === 'Pulsa') {
+                        jenisBadgeClass = 'bg-blue-100 text-blue-800';
+                    } else if (tx.jenis === 'Paket Akrab') {
+                        jenisBadgeClass = 'bg-green-100 text-green-800';
+                    } else if (tx.jenis === 'WiFi') {
+                        jenisBadgeClass = 'bg-purple-100 text-purple-800';
+                    } else if (tx.jenis === 'Pengeluaran') {
+                        jenisBadgeClass = 'bg-red-100 text-red-800';
+                    }
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDate(tx.tanggal)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${jenisBadgeClass}">
+                                ${tx.jenis || ''}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tx.keterangan || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(tx.modal)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(tx.harga_jual)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${tx.laba >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(tx.laba)}</td>
+                    `;
+                    transactionTableBody.appendChild(row);
+
+                    // Render Card untuk Mobile
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm p-4 space-y-3';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${jenisBadgeClass}">
+                                ${tx.jenis || ''}
+                            </span>
+                            <span class="text-gray-500">${formatDate(tx.tanggal)}</span>
+                        </div>
+                        <p class="text-gray-700 font-medium">${tx.keterangan || ''}</p>
+                        <div class="pt-3 border-t border-gray-100 grid grid-cols-3 text-center">
+                            <div>
+                                <p class="text-xs text-gray-500">Modal</p>
+                                <p class="font-semibold text-sm">${formatCurrency(tx.modal)}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Jual</p>
+                                <p class="font-semibold text-sm">${formatCurrency(tx.harga_jual)}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Laba</p>
+                                <p class="font-semibold text-sm ${tx.laba >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(tx.laba)}</p>
+                            </div>
+                        </div>
+                    `;
+                    transactionCardsBody.appendChild(card);
+                });
+
+                updateSummary(transactions);
+            }
+
+            // Fungsi untuk memfilter transaksi berdasarkan jenis dan waktu
+            function filterTransactions() {
+                const selectedJenis = filterJenis.value;
+                const selectedWaktu = filterWaktu.value;
+                const searchQuery = searchInput.value.toLowerCase().trim();
+                let filteredTransactions = [...allTransactions];
+
+                // 1. Filter berdasarkan waktu
+                if (selectedWaktu !== 'semua') {
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                    if (selectedWaktu === 'hari') {
+                        filteredTransactions = filteredTransactions.filter(tx => {
+                            const txDate = new Date(tx.tanggal);
+                            return txDate >= today;
+                        });
+                    } else if (selectedWaktu === 'minggu') {
+                        const firstDayOfWeek = new Date(today);
+                        // Set ke hari Minggu di minggu ini (hari ke-0)
+                        firstDayOfWeek.setDate(today.getDate() - today.getDay()); 
+                        filteredTransactions = filteredTransactions.filter(tx => {
+                            const txDate = new Date(tx.tanggal);
+                            return txDate >= firstDayOfWeek;
+                        });
+                    } else if (selectedWaktu === 'bulan') {
+                        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                        filteredTransactions = filteredTransactions.filter(tx => {
+                            const txDate = new Date(tx.tanggal);
+                            return txDate >= firstDayOfMonth;
+                        });
+                    }
+                }
+
+                // 2. Filter berdasarkan jenis (dari hasil filter waktu)
+                if (selectedJenis) {
+                    filteredTransactions = filteredTransactions.filter(tx => tx.jenis === selectedJenis);
+                }
+
+                // 3. Filter berdasarkan pencarian
+                if (searchQuery) {
+                    filteredTransactions = filteredTransactions.filter(tx => 
+                        tx.keterangan.toLowerCase().includes(searchQuery)
+                    );
+                }
+
+                renderTransactions(filteredTransactions);
+            }
+
+            // Fungsi utama untuk memuat semua transaksi
+            async function loadAllTransactions() {
+                if (!transactionTableBody || !transactionCardsBody) return;
+
+                transactionTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Memuat data transaksi...</td></tr>`;
+                transactionCardsBody.innerHTML = `<div class="text-center py-4 text-gray-500 col-span-full">Memuat data transaksi...</div>`;
+                
+                // Update tombol refresh state
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                try {
+                    // Ambil data dari semua sumber secara paralel
+                    const [pulsaTransactions, akrabTransactions, pengeluaranTransactions, wifiTransactions] = await Promise.all([
+                        fetchAndNormalizePulsa(),
+                        fetchAndNormalizeAkrab(),
+                        fetchAndNormalizePengeluaran(),
+                        fetchAndNormalizeWifi()
+                    ]);
+
+                    // Gabungkan semua array data
+                    allTransactions = [
+                        ...pulsaTransactions,
+                        ...akrabTransactions,
+                        ...pengeluaranTransactions,
+                        ...wifiTransactions
+                    ];
+
+                    // Urutkan semua transaksi berdasarkan tanggal (terbaru dulu)
+                    allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+                    // Render tabel dengan filter yang aktif
+                    filterTransactions();
+
+                } catch (error) {
+                    console.error('Gagal memuat semua transaksi:', error);
+                    const errorMessage = `<tr><td colspan="6" class="text-center py-4 text-red-500">Gagal memuat data. Periksa koneksi atau hubungi administrator.</td></tr>`;
+                    transactionTableBody.innerHTML = errorMessage;
+                    transactionCardsBody.innerHTML = `<div class="text-center py-4 text-red-500 col-span-full">Gagal memuat data.</div>`;
+                    updateSummary([]);
+                } finally {
+                    // Kembalikan tombol refresh ke keadaan normal
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                }
+            }
+
+            // Event listeners
+            refreshBtn.addEventListener('click', () => {
+                searchInput.value = ''; // Kosongkan pencarian saat refresh
+                loadAllTransactions();
+            });
+            filterJenis.addEventListener('change', filterTransactions);
+            filterWaktu.addEventListener('change', filterTransactions);
+            searchInput.addEventListener('input', filterTransactions);
+
+            mobileFilterToggle.addEventListener('click', () => {
+                filterOptions.classList.toggle('hidden');
+                filterOptions.classList.toggle('flex');
+            });
+            // Panggil fungsi untuk memuat data saat halaman dibuka
+            loadAllTransactions();
+        });
+    </script>
+
+</body>
+</html>
