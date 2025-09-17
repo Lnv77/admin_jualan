@@ -33,6 +33,7 @@
                     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto">
                         <h1 id="form-title" class="text-2xl font-bold text-center mb-6 text-gray-800">Formulir Pendaftaran Pelanggan WiFi Baru</h1>
                         <form id="form-pelanggan">
+                            <input type="hidden" id="pelanggan-id">
                             <!-- Data Pelanggan -->
                             <fieldset class="border border-gray-200 rounded-md p-4">
                                 <legend class="font-semibold text-gray-700 px-2">Data Pelanggan</legend>
@@ -119,7 +120,7 @@
                             <!-- Tombol Aksi Form -->
                             <div class="mt-8 flex justify-end gap-4">
                                 <button type="button" id="btn-reset" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md">Reset Form</button>
-                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <button type="submit" id="btn-submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                     Daftarkan Pelanggan
                                 </button>
                             </div>
@@ -285,6 +286,30 @@
                 input.value = numericValue > 0 ? formatRupiah(numericValue) : '';
             }
 
+            function populateFormForEdit(id) {
+                const pelanggan = semuaPelanggan.find(p => p.id === id);
+                if (!pelanggan) {
+                    alert('Pelanggan tidak ditemukan!');
+                    return;
+                }
+
+                // Populate form fields
+                document.getElementById('pelanggan-id').value = pelanggan.id;
+                namaPelangganEl.value = pelanggan.nama;
+                nomorHpEl.value = pelanggan.nomor_hp || '';
+                tanggalAktivasiEl.value = pelanggan.tanggal_aktivasi ? new Date(pelanggan.tanggal_aktivasi).toISOString().split('T')[0] : '';
+                masaAktifPelangganEl.value = pelanggan.masa_aktif ? new Date(pelanggan.masa_aktif).toISOString().split('T')[0] : '';
+                pembayaranAwalEl.value = formatRupiah(pelanggan.pembayaran_awal || 0);
+                document.getElementById('metode-pembayaran-awal').value = pelanggan.metode_pembayaran || 'Cash';
+
+                daftarPembelianAwal = [...(pelanggan.pembelian || [])];
+                renderDaftarPembelianAwal();
+
+                document.getElementById('form-title').textContent = 'Edit Data Pelanggan';
+                document.getElementById('btn-submit').textContent = 'Simpan Perubahan';
+                document.getElementById('btn-reset').textContent = 'Batal';
+                formPelanggan.scrollIntoView({ behavior: 'smooth' });
+            }
             // --- Update & Render Functions ---
             function renderDaftarPembelianAwal() {
                 daftarPembelianEl.innerHTML = '';
@@ -337,6 +362,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button class="text-indigo-600 hover:text-indigo-900 js-detail-pelanggan" data-id="${pelanggan.id}">Detail</button>
                             <button class="text-red-600 hover:text-red-900 ml-4 js-delete-pelanggan" data-id="${pelanggan.id}">Hapus</button>
+                            <button class="text-green-600 hover:text-green-900 ml-4 js-edit-pelanggan" data-id="${pelanggan.id}">Edit</button>
                         </td>
                     `;
                     tabelPelanggan.appendChild(row);
@@ -353,6 +379,7 @@
                         <p class="text-sm text-gray-600">Sisa Saldo: <span class="font-bold ${sisaSaldo < 0 ? 'text-red-600' : 'text-green-600'}">Rp ${formatRupiah(sisaSaldo)}</span></p>
                         <div class="pt-2 border-t border-gray-100 flex justify-end space-x-2">
                             <button class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold js-detail-pelanggan" data-id="${pelanggan.id}">Detail</button>
+                            <button class="text-green-600 hover:text-green-900 text-sm font-semibold js-edit-pelanggan" data-id="${pelanggan.id}">Edit</button>
                             <button class="text-red-600 hover:text-red-900 text-sm font-semibold js-delete-pelanggan" data-id="${pelanggan.id}">Hapus</button>
                         </div>
                     `;
@@ -382,11 +409,17 @@
                                 if (p.kuota && typeof p.kuota === 'string') pembelian = JSON.parse(p.kuota);
                             } catch (e) { console.error(`Gagal parse JSON kuota untuk pelanggan ${p.id}:`, p.kuota); }
 
+                            // Normalisasi nomor HP untuk menghilangkan tanda kutip di awal
+                            let nomorHp = p.nomor ? String(p.nomor) : '';
+                            if (nomorHp.startsWith("'")) {
+                                nomorHp = nomorHp.substring(1);
+                            }
+
                             // Simpan data asli dari sheet untuk memastikan update tidak menghilangkan data
                             return { 
                                 id: p.id, 
                                 nama: p.nama, 
-                                nomor_hp: p.nomor, 
+                                nomor_hp: nomorHp, 
                                 masa_aktif: p.masa_aktif, 
                                 pembayaran, // Array yang dikonstruksi untuk tampilan
                                 pembelian, // Array yang dikonstruksi untuk tampilan
@@ -411,8 +444,13 @@
             function resetForm() {
                 formPelanggan.reset();
                 daftarPembelianAwal = [];
+                document.getElementById('pelanggan-id').value = '';
                 tanggalAktivasiEl.value = getTodayDate();
                 renderDaftarPembelianAwal();
+
+                document.getElementById('form-title').textContent = 'Formulir Pendaftaran Pelanggan WiFi Baru';
+                document.getElementById('btn-submit').textContent = 'Daftarkan Pelanggan';
+                document.getElementById('btn-reset').textContent = 'Reset Form';
             }
 
             // --- Event Listeners ---
@@ -461,44 +499,58 @@
 
             formPelanggan.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const submitButton = formPelanggan.querySelector('button[type="submit"]');
+                const submitButton = document.getElementById('btn-submit');
                 submitButton.disabled = true;
-                submitButton.textContent = 'Mendaftarkan...';
 
+                const editId = document.getElementById('pelanggan-id').value;
+                const isEditMode = !!editId;
+
+                submitButton.textContent = isEditMode ? 'Menyimpan...' : 'Mendaftarkan...';
+                
                 const metodePembayaranAwal = document.getElementById('metode-pembayaran-awal').value;
                 const pembayaranAwal = parseRupiah(pembayaranAwalEl.value);
                 
+                const nomorValue = nomorHpEl.value.trim();
                 const pelangganData = {
                     id: Date.now(),
                     nama: namaPelangganEl.value.trim(),
-                    nomor: nomorHpEl.value.trim(),
+                    nomor: nomorValue ? `'${nomorValue}` : '',
                     tanggal_aktivasi: tanggalAktivasiEl.value,
                     masa_aktif: masaAktifPelangganEl.value.trim(),
                     pembayaran_awal: pembayaranAwal,
                     metode_pembayaran: metodePembayaranAwal,
-                    kuota: JSON.stringify(daftarPembelianAwal.map(p => ({...p, tanggal: tanggalAktivasiEl.value })))
+                    kuota: JSON.stringify(daftarPembelianAwal.map(p => ({...p, tanggal: p.tanggal || tanggalAktivasiEl.value })))
                 };
                 
                 if (!pelangganData.nama || !pembayaranAwal || !tanggalAktivasiEl.value) {
                     alert('Nama, Tanggal Aktivasi, dan Pembayaran Awal wajib diisi.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan';
                     return;
                 }
 
                 try {
-                    const result = await sendDataToSheet('create', pelangganData);
+                    let result;
+                    if (isEditMode) {
+                        pelangganData.id = parseInt(editId);
+                        result = await sendDataToSheet('update', pelangganData);
+                    } else {
+                        pelangganData.id = Date.now();
+                        result = await sendDataToSheet('create', pelangganData);
+                    }
+
                     if (result.status === 'success') {
-                        alert('Pelanggan berhasil didaftarkan!');
+                        alert(isEditMode ? 'Pelanggan berhasil diperbarui!' : 'Pelanggan berhasil didaftarkan!');
                         resetForm();
                         await loadData(); // Muat ulang data dari sheet
                     } else {
                         throw new Error(result.message);
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Gagal mendaftarkan pelanggan: ' + error.message);
-                } finally {
+                    console.error('Error:', error);                    
+                    alert((isEditMode ? 'Gagal memperbarui pelanggan: ' : 'Gagal mendaftarkan pelanggan: ') + error.message);
                     submitButton.disabled = false;
-                    submitButton.textContent = 'Daftarkan Pelanggan';
+                    submitButton.textContent = isEditMode ? 'Simpan Perubahan' : 'Daftarkan Pelanggan';
                 }
             });
 
@@ -524,6 +576,10 @@
 
                 if (target.classList.contains('js-detail-pelanggan')) {
                     openDetailModal(id);
+                }
+
+                if (target.classList.contains('js-edit-pelanggan')) {
+                    populateFormForEdit(id);
                 }
             }
 
