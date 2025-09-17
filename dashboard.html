@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex min-h-screen bg-gray-200">
+        <!-- Sidebar akan dimuat di sini -->
+        <div id="sidebar-container"></div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header Konten -->
+            <header class="flex justify-between items-center p-4 bg-white border-b">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 class="text-xl font-semibold ml-3 md:ml-0">Dashboard</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="current-date" class="text-sm text-gray-600"></span>
+                    <button id="refresh-btn" class="bg-white hover:bg-gray-50 text-gray-600 p-2 rounded-md flex-shrink-0 flex items-center justify-center border border-gray-300 shadow-sm">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Area Konten -->
+            <main class="flex-grow overflow-x-hidden bg-gray-100 p-6">
+                <div class="container mx-auto">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Laba Hari Ini</h3>
+                            <p id="laba-hari-ini" class="text-2xl font-bold text-green-600">Memuat...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Penjualan Hari Ini</h3>
+                            <p id="penjualan-hari-ini" class="text-2xl font-bold text-blue-600">Memuat...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Total Piutang</h3>
+                            <p id="total-piutang" class="text-2xl font-bold text-red-600">Memuat...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-sm font-semibold text-gray-600">Pelanggan Aktif (WiFi/Akrab)</h3>
+                            <p id="pelanggan-aktif" class="text-2xl font-bold text-purple-600">Memuat...</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+                        <div class="lg:col-span-3 bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold mb-4">Laba 7 Hari Terakhir</h3>
+                            <div class="relative h-72">
+                                <canvas id="laba-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold mb-4">Komposisi Penjualan</h3>
+                            <div class="relative h-72">
+                                <canvas id="komposisi-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actionable Lists -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Pelanggan akan jatuh tempo -->
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold mb-4">Masa Aktif Segera Berakhir (7 Hari)</h3>
+                            <div class="overflow-y-auto max-h-72">
+                                <table class="min-w-full">
+                                    <tbody id="expiring-customers-body">
+                                        <!-- Data diisi oleh JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Transaksi Terakhir -->
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold mb-4">5 Transaksi Terakhir</h3>
+                            <div class="overflow-y-auto max-h-72">
+                                <table class="min-w-full">
+                                    <tbody id="recent-transactions-body">
+                                        <!-- Data diisi oleh JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="main.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // !! PENTING: Ganti dengan URL Web App dari Google Apps Script Anda !!
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx59LDYtuFqRh6P0a0xtd3usgDpFxXktJbS_jHzbZiai0tqsm3zTIkJSOSFTY1BtfCeqw/exec';
+
+            const refreshBtn = document.getElementById('refresh-btn');
+            let labaChartInstance, komposisiChartInstance;
+
+            // Helper untuk format Rupiah
+            const formatCurrency = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number || 0);
+
+            // Helper untuk mengirim data ke Google Script
+            async function sendDataToSheet(action, payload, sheetName) {
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        body: JSON.stringify({ action, payload, sheetName })
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Gagal mengambil data dari sheet ${sheetName}:`, error);
+                    return { status: 'error', data: [] }; // Return empty on error
+                }
+            }
+
+            // Fungsi normalisasi data dari berbagai sheet
+            function normalizeTransactions(pulsa, akrab, wifi, pengeluaran) {
+                const allTransactions = [];
+
+                // Pulsa
+                (pulsa.data || []).forEach(tx => {
+                    const modal = Number(tx.modal || tx.Modal || 0);
+                    const harga = Number(tx.harga || tx.Harga || tx['Harga Jual'] || 0);
+                    allTransactions.push({
+                        tanggal: tx.tanggal || tx.Tanggal,
+                        jenis: 'Pulsa',
+                        keterangan: `${tx.nama_pulsa || tx['Nama Pulsa']} (${tx.nomor || tx.Nomor})`,
+                        modal: modal,
+                        harga_jual: harga,
+                        laba: harga - modal,
+                        pembayaran: tx.pembayaran || tx.Pembayaran
+                    });
+                });
+
+                // Paket Akrab
+                (akrab.data || []).forEach(p => {
+                    const modal = Number(p.modal || 0);
+                    const harga = Number(p.harga || 0);
+                    allTransactions.push({
+                        tanggal: p.tanggal_ditambahkan || p.tanggalTambah,
+                        jenis: 'Paket Akrab',
+                        keterangan: `${p.nama} (${p.nomor || p.noHp})`,
+                        modal: modal,
+                        harga_jual: harga,
+                        laba: harga - modal,
+                        pembayaran: p.metode_pembayaran || p.metodePembayaran
+                    });
+                });
+
+                // WiFi
+                (wifi.data || []).forEach(w => {
+                    const pembayaranAwal = Number(w.pembayaran_awal) || 0;
+                    if (pembayaranAwal > 0) {
+                        allTransactions.push({
+                            tanggal: w.tanggal_aktivasi,
+                            jenis: 'WiFi',
+                            keterangan: `Pembayaran dari ${w.nama}`,
+                            modal: 0,
+                            harga_jual: pembayaranAwal,
+                            laba: pembayaranAwal,
+                            pembayaran: w.metode_pembayaran
+                        });
+                    }
+                    let kuotaList = [];
+                    try {
+                        if (w.kuota && typeof w.kuota === 'string') kuotaList = JSON.parse(w.kuota);
+                    } catch (e) { /* ignore */ }
+                    kuotaList.forEach(pembelian => {
+                        const modalKuota = Number(pembelian.amount) || 0;
+                        allTransactions.push({
+                            tanggal: pembelian.tanggal,
+                            jenis: 'WiFi',
+                            keterangan: `Modal Kuota untuk ${w.nama}`,
+                            modal: modalKuota,
+                            harga_jual: 0,
+                            laba: -modalKuota,
+                            pembayaran: 'Internal'
+                        });
+                    });
+                });
+
+                // Pengeluaran
+                (pengeluaran.data || []).forEach(tx => {
+                    const jumlah = Number(tx.jumlah || 0);
+                    allTransactions.push({
+                        tanggal: tx.tanggal,
+                        jenis: 'Pengeluaran',
+                        keterangan: tx.keterangan,
+                        modal: jumlah,
+                        harga_jual: 0,
+                        laba: -jumlah,
+                        pembayaran: 'Internal'
+                    });
+                });
+
+                return allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            }
+
+            // Fungsi utama untuk memuat dan memproses semua data
+            async function loadDashboardData() {
+                // Set loading state
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                document.getElementById('laba-hari-ini').textContent = 'Memuat...';
+                document.getElementById('penjualan-hari-ini').textContent = 'Memuat...';
+                document.getElementById('total-piutang').textContent = 'Memuat...';
+                document.getElementById('pelanggan-aktif').textContent = 'Memuat...';
+
+                // Fetch all data in parallel
+                const [pulsa, akrab, wifi, pengeluaran, topup] = await Promise.all([
+                    sendDataToSheet('read', {}, 'pulsa'),
+                    sendDataToSheet('read', {}, 'paket_akrab'),
+                    sendDataToSheet('read', {}, 'wifi_pelanggan'),
+                    sendDataToSheet('read', {}, 'pengeluaran'),
+                    sendDataToSheet('read', {}, 'topup')
+                ]);
+
+                const allTransactions = normalizeTransactions(pulsa, akrab, wifi, pengeluaran);
+
+                // --- 1. Hitung KPI ---
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const txToday = allTransactions.filter(tx => new Date(tx.tanggal) >= today);
+                const labaHariIni = txToday.reduce((sum, tx) => sum + tx.laba, 0);
+                const penjualanHariIni = txToday.reduce((sum, tx) => sum + tx.harga_jual, 0);
+
+                let totalPiutang = 0;
+                allTransactions.filter(tx => tx.pembayaran === 'Hutang').forEach(tx => totalPiutang += tx.harga_jual);
+                (topup.data || []).filter(t => t.tujuan_saldo === 'Hutang').forEach(t => totalPiutang -= (Number(t.modal) || 0));
+
+                const pelangganAktifAkrab = (akrab.data || []).filter(p => new Date(p['masa aktif']) >= today).length;
+                const pelangganAktifWifi = (wifi.data || []).filter(p => new Date(p.masa_aktif) >= today).length;
+                const totalPelangganAktif = pelangganAktifAkrab + pelangganAktifWifi;
+
+                // Update KPI cards
+                document.getElementById('laba-hari-ini').textContent = formatCurrency(labaHariIni);
+                document.getElementById('penjualan-hari-ini').textContent = formatCurrency(penjualanHariIni);
+                document.getElementById('total-piutang').textContent = formatCurrency(totalPiutang);
+                document.getElementById('pelanggan-aktif').textContent = totalPelangganAktif;
+
+                // --- 2. Siapkan Data Chart ---
+                // Laba 7 Hari Terakhir
+                const labaData = {};
+                const labels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const label = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' });
+                    labels.push(label);
+                    labaData[label] = 0;
+                }
+                allTransactions.forEach(tx => {
+                    const txDate = new Date(tx.tanggal);
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    if (txDate >= sevenDaysAgo) {
+                        const label = txDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric' });
+                        if (labaData.hasOwnProperty(label)) {
+                            labaData[label] += tx.laba;
+                        }
+                    }
+                });
+                updateLabaChart(labels, Object.values(labaData));
+
+                // Komposisi Penjualan
+                const komposisiData = { 'Pulsa': 0, 'Paket Akrab': 0, 'WiFi': 0 };
+                allTransactions.forEach(tx => {
+                    if (komposisiData.hasOwnProperty(tx.jenis)) {
+                        komposisiData[tx.jenis] += tx.harga_jual;
+                    }
+                });
+                updateKomposisiChart(Object.keys(komposisiData), Object.values(komposisiData));
+
+                // --- 3. Siapkan Data List ---
+                // Pelanggan akan jatuh tempo
+                const expiringCustomers = [];
+                const sevenDaysLater = new Date();
+                sevenDaysLater.setDate(today.getDate() + 7);
+                (akrab.data || []).forEach(p => {
+                    const expiryDate = new Date(p['masa aktif']);
+                    if (expiryDate >= today && expiryDate <= sevenDaysLater) {
+                        expiringCustomers.push({ nama: p.nama, jenis: 'Paket Akrab', tanggal: expiryDate });
+                    }
+                });
+                (wifi.data || []).forEach(p => {
+                    // Cek masa aktif langganan utama
+                    const expiryDate = new Date(p.masa_aktif);
+                    if (expiryDate >= today && expiryDate <= sevenDaysLater) {
+                        expiringCustomers.push({ nama: p.nama, jenis: 'Langganan WiFi', tanggal: expiryDate });
+                    }
+
+                    // Cek masa aktif setiap pembelian kuota
+                    let kuotaList = [];
+                    try {
+                        if (p.kuota && typeof p.kuota === 'string') kuotaList = JSON.parse(p.kuota);
+                    } catch (e) { /* abaikan error parsing */ }
+
+                    kuotaList.forEach(pembelian => {
+                        if (pembelian.masa_aktif) {
+                            const quotaExpiryDate = new Date(pembelian.masa_aktif);
+                            if (quotaExpiryDate >= today && quotaExpiryDate <= sevenDaysLater) {
+                                expiringCustomers.push({ 
+                                    nama: p.nama, 
+                                    jenis: `Kuota WiFi (${pembelian.deskripsi || 'N/A'})`, 
+                                    tanggal: quotaExpiryDate 
+                                });
+                            }
+                        }
+                    });
+                });
+                renderExpiringCustomers(expiringCustomers.sort((a, b) => a.tanggal - b.tanggal));
+
+                // Transaksi Terakhir
+                renderRecentTransactions(allTransactions.slice(0, 5));
+
+                // Reset refresh button
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            }
+
+            // --- Fungsi Render ---
+            function updateLabaChart(labels, data) {
+                const ctx = document.getElementById('laba-chart').getContext('2d');
+                if (labaChartInstance) labaChartInstance.destroy();
+                labaChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Laba',
+                            data: data,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: { y: { beginAtZero: true } },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            function updateKomposisiChart(labels, data) {
+                const ctx = document.getElementById('komposisi-chart').getContext('2d');
+                if (komposisiChartInstance) komposisiChartInstance.destroy();
+                komposisiChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Komposisi Penjualan',
+                            data: data,
+                            backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6'],
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            function renderExpiringCustomers(customers) {
+                const tbody = document.getElementById('expiring-customers-body');
+                tbody.innerHTML = '';
+                if (customers.length === 0) {
+                    tbody.innerHTML = '<tr><td class="py-2 text-gray-500">Tidak ada pelanggan yang akan jatuh tempo.</td></tr>';
+                    return;
+                }
+                customers.forEach(c => {
+                    const daysLeft = Math.ceil((c.tanggal - new Date()) / (1000 * 60 * 3600 * 24));
+                    const dayText = daysLeft <= 1 ? 'Besok' : `${daysLeft} hari lagi`;
+                    tbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-2">
+                                <p class="font-medium text-gray-800">${c.nama}</p>
+                                <p class="text-sm text-gray-500">${c.jenis}</p>
+                            </td>
+                            <td class="py-3 text-right">
+                                <p class="font-semibold ${daysLeft <= 1 ? 'text-red-500' : 'text-yellow-600'}">${dayText}</p>
+                                <p class="text-sm text-gray-500">${c.tanggal.toLocaleDateString('id-ID')}</p>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            function renderRecentTransactions(transactions) {
+                const tbody = document.getElementById('recent-transactions-body');
+                tbody.innerHTML = '';
+                if (transactions.length === 0) {
+                    tbody.innerHTML = '<tr><td class="py-2 text-gray-500">Tidak ada transaksi.</td></tr>';
+                    return;
+                }
+                transactions.forEach(tx => {
+                    const isProfit = tx.laba >= 0;
+                    tbody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-2">
+                                <p class="font-medium text-gray-800">${tx.keterangan}</p>
+                                <p class="text-sm text-gray-500">${new Date(tx.tanggal).toLocaleString('id-ID', {dateStyle: 'short', timeStyle: 'short'})}</p>
+                            </td>
+                            <td class="py-3 text-right font-semibold ${isProfit ? 'text-green-600' : 'text-red-600'}">
+                                ${formatCurrency(tx.laba)}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // --- Inisialisasi ---
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            refreshBtn.addEventListener('click', loadDashboardData);
+            loadDashboardData();
+        });
+    </script>
+
+</body>
+</html>
